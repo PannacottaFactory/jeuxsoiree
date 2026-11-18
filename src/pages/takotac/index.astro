@@ -17,9 +17,9 @@ const total = roundDown(stats.total);
 
 const steps = [
   { title: 'Ajoutez les joueurs', text: 'De 2 à 8 joueurs. Cochez un ou plusieurs packs de catégories.' },
-  { title: 'À toi de jouer', text: 'Quand ton nom s’affiche, prends le téléphone et appuie : la consigne apparaît et le chrono démarre.' },
+  { title: 'Un autre joueur te lit la consigne', text: 'Personne ne lit la sienne : le joueur qui vient de répondre prend le téléphone et te lit la consigne. Le chrono démarre.' },
   { title: '7 secondes', text: '« Cite 3 trucs oranges » : donne 3 réponses (parfois 4) avant la sonnerie.' },
-  { title: '+2 points', text: 'Tu valides avant la fin du chrono : +2 points. Le temps est écoulé ? Raté, c’est au suivant.' },
+  { title: '+2 points', text: 'Toutes tes réponses avant la sonnerie : le lecteur valide, +2 points. Le temps est écoulé ? Raté, c’est au suivant.' },
   { title: 'Parfois à deux', text: 'En début de manche, deux joueurs peuvent être tirés au sort pour jouer ensemble. S’ils réussissent, chacun prend 2 points.' },
   { title: 'Le plus rapide gagne', text: 'De 5 à 8 manches selon le nombre de joueurs, puis le classement s’affiche.' },
 ];
@@ -29,6 +29,11 @@ const faq: FaqItem[] = [
   {
     question: 'Combien de manches dure une partie ?',
     answer: '8 manches à 2 joueurs, 6 manches de 3 à 5 joueurs et 5 manches de 6 à 8 joueurs. Chaque joueur joue une fois par manche. Comptez 5 à 15 minutes.',
+  },
+  {
+    question: 'Qui lit la consigne et qui valide ?',
+    answer:
+      'Un autre joueur : celui qui vient de jouer prend le téléphone, lit la consigne à voix haute au joueur suivant, puis valide sa réponse. Personne ne lit donc sa propre consigne.',
   },
   {
     question: 'Que se passe-t-il si le chrono sonne avant la fin ?',

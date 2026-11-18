@@ -1,6 +1,6 @@
 # Plan d'implémentation — Jeux de soirée
 
-Statut : **validé le 2026-11-18**. Phases 2 et 3 livrées (voir `decisions.md`). Phase suivante : 4 (multijoueur QR code).
+Statut : **validé le 2026-11-18**. Phases 2, 3 et 4 livrées (voir `decisions.md`). Phase suivante : 5 (PWA, RGPD, publicité, analytics).
 
 ## 1. Constat sur les sources
 

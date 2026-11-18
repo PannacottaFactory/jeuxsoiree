@@ -27,6 +27,10 @@ import { useGameSession, usePersistentState } from '~/ui/session';
 import { useScrollTopOn, useTransportState, useWakeLock } from '~/ui/hooks';
 import { play, vibrate } from '~/ui/feedback';
 import type { PlayUrls } from '~/ui/types';
+import { MultiPlay } from '~/ui/multi/MultiPlay';
+import { ModeChooser } from '~/ui/multi/ModeChooser';
+import { usePlayMode } from '~/ui/multi/usePlayMode';
+import { MimosConfigExtra, MimosMultiView } from './MimosMultiView';
 
 interface Props {
   subjects: EntryLite[];
@@ -56,6 +60,7 @@ export default function MimosApp(props: Props) {
     packs: [props.packs[0]!.id],
   });
   const [ageOk, setAgeOk] = usePersistentState<boolean>('jds:age-ok', false);
+  const [mode, setMode] = usePlayMode('mimos', props.adult);
   const session = useGameSession<MimosState, MimosAction>(`${key}:game`, reduce);
   const subjects = useMemo(() => indexById(props.subjects), [props.subjects]);
   const actions = useMemo(() => indexById(props.actions), [props.actions]);
@@ -76,6 +81,47 @@ export default function MimosApp(props: Props) {
       <div class="play">
         <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
         <AgeGate gameName="Mimos" backHref={props.urls.normal ?? props.urls.back} onAccept={() => setAgeOk(true)} />
+      </div>
+    );
+  }
+
+  if (mode === 'multi') {
+    return (
+      <MultiPlay
+        game="mimos"
+        gameName="Mimos"
+        adult={props.adult}
+        role="host"
+        packs={props.packs}
+        joinUrl={props.urls.join}
+        shareUrl={props.urls.share}
+        onExit={() => setMode('choose')}
+        View={MimosMultiView} ConfigExtra={MimosConfigExtra}
+        renderTopBar={(o) => <TopBar title={title} backHref={props.urls.back} inGame={o.inGame} onQuit={o.onQuit} />}
+      />
+    );
+  }
+
+  if (mode === 'choose' && !session.transport) {
+    return (
+      <div class="play">
+        <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
+        <ModeChooser
+          gameName="Mimos"
+          onMulti={() => setMode('multi')}
+          onLocal={() => setMode('local')}
+          resume={
+            session.saved
+              ? {
+                  label: 'Une partie sur ce téléphone est en cours.',
+                  onResume: () => {
+                    setMode('local');
+                    session.resume();
+                  },
+                }
+              : null
+          }
+        />
       </div>
     );
   }

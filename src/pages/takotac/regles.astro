@@ -19,9 +19,12 @@ import RulesLayout from '~/layouts/RulesLayout.astro';
 
   <h2>Déroulé d’un tour</h2>
   <ol>
-    <li>Le jeu annonce le joueur. Il prend le téléphone et appuie pour révéler la consigne : le chrono de 7 secondes démarre.</li>
-    <li>La consigne demande de citer <strong>3</strong> éléments (le plus souvent) ou <strong>4</strong> éléments d’une catégorie.</li>
-    <li>Le joueur donne ses réponses à voix haute et appuie sur <strong>Validé</strong> avant la fin du chrono, ou sur <strong>Échec</strong>.</li>
+    <li>
+      Le jeu désigne un <strong>lecteur</strong> : le joueur qui vient de jouer. Il prend le téléphone et lit la consigne à
+      voix haute au joueur suivant. Personne ne lit sa propre consigne.
+    </li>
+    <li>La consigne demande de citer <strong>3</strong> éléments (le plus souvent) ou <strong>4</strong> éléments d’une catégorie. Le chrono de 7 secondes démarre.</li>
+    <li>Le joueur répond à voix haute. Le lecteur appuie sur <strong>Validé</strong> s’il a tout donné avant la fin du chrono, sinon sur <strong>Raté</strong>.</li>
     <li>Si le chrono atteint zéro sans validation, c’est un <strong>échec</strong>.</li>
   </ol>
 

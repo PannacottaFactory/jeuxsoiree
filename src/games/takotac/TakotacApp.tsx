@@ -24,6 +24,10 @@ import { useGameSession, usePersistentState } from '~/ui/session';
 import { useScrollTopOn, useTransportState, useWakeLock } from '~/ui/hooks';
 import { play, vibrate } from '~/ui/feedback';
 import type { PlayUrls } from '~/ui/types';
+import { MultiPlay } from '~/ui/multi/MultiPlay';
+import { ModeChooser } from '~/ui/multi/ModeChooser';
+import { usePlayMode } from '~/ui/multi/usePlayMode';
+import { TakotacMultiView } from './TakotacMultiView';
 
 interface Props {
   categories: EntryLite[];
@@ -44,6 +48,7 @@ export default function TakotacApp(props: Props) {
     packs: [props.packs[0]!.id],
   });
   const [ageOk, setAgeOk] = usePersistentState<boolean>('jds:age-ok', false);
+  const [mode, setMode] = usePlayMode('takotac', props.adult);
   const session = useGameSession<TakotacState, TakotacAction>(`${key}:game`, reduce);
   const categories = useMemo(() => indexById(props.categories), [props.categories]);
 
@@ -70,6 +75,47 @@ export default function TakotacApp(props: Props) {
       <div class="play">
         <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
         <AgeGate gameName="Takotac" backHref={props.urls.normal ?? props.urls.back} onAccept={() => setAgeOk(true)} />
+      </div>
+    );
+  }
+
+  if (mode === 'multi') {
+    return (
+      <MultiPlay
+        game="takotac"
+        gameName="Takotac"
+        adult={props.adult}
+        role="host"
+        packs={props.packs}
+        joinUrl={props.urls.join}
+        shareUrl={props.urls.share}
+        onExit={() => setMode('choose')}
+        View={TakotacMultiView}
+        renderTopBar={(o) => <TopBar title={title} backHref={props.urls.back} inGame={o.inGame} onQuit={o.onQuit} />}
+      />
+    );
+  }
+
+  if (mode === 'choose' && !session.transport) {
+    return (
+      <div class="play">
+        <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
+        <ModeChooser
+          gameName="Takotac"
+          onMulti={() => setMode('multi')}
+          onLocal={() => setMode('local')}
+          resume={
+            session.saved
+              ? {
+                  label: 'Une partie sur ce téléphone est en cours.',
+                  onResume: () => {
+                    setMode('local');
+                    session.resume();
+                  },
+                }
+              : null
+          }
+        />
       </div>
     );
   }
@@ -118,6 +164,8 @@ function TakotacGame(props: {
   useScrollTopOn(`${state.round}-${state.turnIndex}-${state.phase}`);
 
   const players = currentPlayers(state).map((id) => playerById(state.players, id));
+  const answering = joinNames(players.map((p) => p.name));
+  const reader = playerById(state.players, state.readerId).name;
   const coop = players.length > 1;
   const progress = `Manche ${state.round} / ${state.totalRounds}`;
   const scores = (
@@ -142,14 +190,20 @@ function TakotacGame(props: {
     return (
       <Handoff
         progress={progress}
-        kicker={coop ? '🤝 Coopération ! À vous de jouer' : 'À toi de jouer'}
-        name={joinNames(players.map((p) => p.name))}
+        kicker="Passe le téléphone à"
+        name={reader}
         sub={
-          <p class="hint">
-            {coop
-              ? `Vous répondez ensemble. Dès que vous appuyez, la consigne s’affiche et vous avez ${ANSWER_DURATION_MS / 1000} secondes.`
-              : `Dès que tu appuies, la consigne s’affiche et tu as ${ANSWER_DURATION_MS / 1000} secondes.`}
-          </p>
+          <>
+            <p class="hint">
+              Tu vas lire la consigne à voix haute à{' '}
+              <strong style="color: var(--text)">{answering}</strong>.
+            </p>
+            <p class="hint">
+              {coop
+                ? `🤝 Coopération : ${answering} répondent ensemble, ${ANSWER_DURATION_MS / 1000} secondes chrono !`
+                : `${answering} aura ${ANSWER_DURATION_MS / 1000} secondes pour répondre.`}
+            </p>
+          </>
         }
         banner={
           r && (
@@ -167,7 +221,7 @@ function TakotacGame(props: {
           )
         }
         scores={scores}
-        buttonLabel="Go ! Affiche la consigne"
+        buttonLabel="Lire la consigne"
         onReady={() => {
           play('start');
           dispatch({ type: 'start', at: Date.now() });
@@ -213,7 +267,7 @@ function TakotacGame(props: {
       )}
       <div class="card card--accent" style="text-align: center">
         <p class="kicker" style="margin-bottom: var(--sp-2)">
-          {joinNames(players.map((p) => p.name))}
+          Lis à voix haute à {answering} :
         </p>
         <p class="card__text" style="font-size: clamp(1.8rem, 8vw, 2.6rem)">
           {verb} <span class="gradient-text">{state.prompt?.count}</span> {category?.text}
@@ -221,7 +275,7 @@ function TakotacGame(props: {
         </p>
       </div>
       <p class="hint" style="text-align: center">
-        Valide avant la sonnerie !
+        Valide seulement si {answering} {coop ? 'ont' : 'a'} tout donné avant la sonnerie.
       </p>
     </Screen>
   );

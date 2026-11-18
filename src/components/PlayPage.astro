@@ -61,6 +61,7 @@ const packOptions = (packs: Pack[]): PackOption[] =>
 const urls: PlayUrls = {
   back: href(`/${slug}/`),
   share: absoluteUrl(`/${slug}/`, Astro.site),
+  join: absoluteUrl(`/${slug}/rejoindre/`, Astro.site),
   ...(adult ? { normal: href(`/${slug}/jouer/`) } : { adult: href(`/${slug}/jouer/no-limit/`) }),
 };
 

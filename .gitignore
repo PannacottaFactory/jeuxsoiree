@@ -9,3 +9,7 @@ dist/
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+firebase-debug.log
+database-debug.log
+firebase-debug.*.log
+ui-debug.log

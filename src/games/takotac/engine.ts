@@ -2,9 +2,12 @@
  * Moteur de Takotac (jeu de rapidité). Fonction pure : (état, action) → nouvel état.
  * Règles : docs/gameplay-takotac.md + docs/decisions.md.
  *
+ * Un LECTEUR (un autre joueur) lit la consigne à voix haute : personne ne lit la sienne (décision 2026-11-18).
+ * Le lecteur est le joueur précédent dans l'ordre de jeu : celui qui vient de répondre lit au suivant.
+ *
  * Machine à états d'un tour :
- *   handoff   → « À toi de jouer, <joueur> » (ou « À vous, X et Y » en coopération) ; la consigne est tirée mais cachée
- *   answering → chrono de 7 s ; « Validé » (+2 par joueur) avant le gong, sinon échec
+ *   handoff   → « Passe le téléphone à <lecteur> » ; la consigne est tirée mais cachée
+ *   answering → le lecteur lit la consigne, chrono de 7 s ; il valide (+2 par joueur) avant le gong, sinon échec
  *   → tour suivant (handoff, avec le résultat du tour précédent) ou finished
  */
 import { Rng, type RngState } from '../core/rng';
@@ -46,6 +49,8 @@ export interface TakotacState {
   /** Tours de la manche en cours : 1 joueur, ou 2 en coopération. */
   roundTurns: string[][];
   turnIndex: number;
+  /** Joueur qui lit la consigne et valide (jamais un des joueurs interrogés). */
+  readerId: string;
   phase: TakotacPhase;
   prompt: Prompt | null;
   deadline: number | null;
@@ -89,6 +94,20 @@ export function buildRound(playerIds: readonly string[], rng: Rng): string[][] {
   return turns;
 }
 
+/**
+ * Lecteur d'un tour : en remontant l'ordre de jeu depuis le premier joueur interrogé, le premier joueur qui n'est pas
+ * interrogé dans ce tour (en pratique, celui qui vient de jouer).
+ */
+export function readerFor(playerIds: readonly string[], turn: readonly string[]): string {
+  const n = playerIds.length;
+  const start = playerIds.indexOf(turn[0]!);
+  for (let k = 1; k <= n; k++) {
+    const candidate = playerIds[(start - k + n) % n]!;
+    if (!turn.includes(candidate)) return candidate;
+  }
+  throw new Error('Aucun lecteur disponible');
+}
+
 function drawPrompt(deck: Deck, rng: Rng): { prompt: Prompt; deck: Deck } {
   const { card, deck: next } = drawOne(deck, rng);
   return { prompt: { categoryId: card, count: rng.chance(CHANCE_OF_THREE) ? 3 : 4 }, deck: next };
@@ -114,6 +133,10 @@ export function createGame(players: Player[], categoryIds: readonly string[], se
     round: 1,
     roundTurns,
     turnIndex: 0,
+    readerId: readerFor(
+      players.map((p) => p.id),
+      roundTurns[0]!,
+    ),
     phase: 'handoff',
     prompt,
     deadline: null,
@@ -147,7 +170,11 @@ function endTurn(state: TakotacState, success: boolean, timedOut: boolean): Tako
     turnIndex = 0;
   }
   const { prompt, deck } = drawPrompt(state.deck, rng);
-  return { ...state, scores, lastResult, round, roundTurns, turnIndex, prompt, deck, rng: rng.state, phase: 'handoff', deadline: null };
+  const readerId = readerFor(
+    state.players.map((p) => p.id),
+    roundTurns[turnIndex]!,
+  );
+  return { ...state, scores, lastResult, round, roundTurns, turnIndex, readerId, prompt, deck, rng: rng.state, phase: 'handoff', deadline: null };
 }
 
 /** Réducteur. Une action invalide dans la phase courante est ignorée (état inchangé). */

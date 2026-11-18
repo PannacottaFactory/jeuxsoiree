@@ -100,7 +100,10 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
   affronte tous les autres joueurs à la suite.
 - **Mimos** : chacun pour soi, ordre de saisie ; en équipes, alternance A1, B1, A2, B2… L'expression affichée au gong
   compte comme ratée dans le bilan du passage.
-- **Takotac** : ordre de saisie ; le binôme de coopération joue quand on arrive au premier des deux. Au gong,
+- **Takotac** : ordre de saisie ; le binôme de coopération joue quand on arrive au premier des deux.
+  **Lecteur** (demande du propriétaire, 2026-11-18) : un autre joueur lit la consigne, personne ne lit la sienne. Le
+  lecteur est le joueur précédent dans l'ordre de jeu (celui qui vient de répondre lit au suivant), et c'est lui qui
+  valide. En multijoueur, le lecteur voit la consigne et valide ; le joueur interrogé ne voit que le chrono. Au gong,
   l'échec est automatique (son + vibration) et on passe au joueur suivant.
 
 ### Mode No Limit (18+)
@@ -115,3 +118,68 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
   confettis en fin de partie (désactivés si `prefers-reduced-motion`), partage via la Web Share API avec copie du
   lien en repli.
 - Préparation (joueurs, packs, mode) mémorisée par jeu : « Rejouer » relance avec les mêmes joueurs.
+
+## 2026-11-18 — Phase 4 : multijoueur « chacun son téléphone »
+
+### Architecture (réseau isolé du jeu)
+- `RoomBackend` (`src/net/RoomBackend.ts`) : interface neutre (salles, présence, vues, intentions, transfert
+  d'hôte). Implémentations : `FirebaseBackend` (production) et `MemoryBackend` (tests). Changer de fournisseur
+  = écrire une autre implémentation, sans toucher aux moteurs ni à l'UI.
+- `MultiplayerSession` : orchestration hôte / invités, indépendante du fournisseur et du jeu.
+- `MultiAdapter` par jeu (`src/games/<jeu>/multi.ts`) : composition du lobby, création, autorisations
+  (`actors`/`authorize`), actions automatiques (fins de chrono), et **projection** de l'état en une vue publique plus
+  une vue secrète par joueur.
+- **L'hôte fait autorité.** Il garde l'état complet (pioche, générateur aléatoire), applique les intentions autorisées
+  et publie les vues. L'état complet est stocké dans `hostState`, que lui seul peut lire : il sert à la reprise et au
+  transfert d'hôte. Les invités reçoivent les **textes** déjà résolus, sans aucun contenu de jeu à télécharger.
+- **Qui agit** : le farceur (Rigolol), le mimeur (Mimos) et le lecteur (Takotac) pilotent leur tour depuis leur
+  téléphone. L'hôte ne peut jouer à leur place que si ce joueur est **hors ligne** (bandeau « Tu joues à la place
+  de… »). Les fins de chrono sont déclenchées par l'hôte, sur l'horloge du serveur.
+- **Temps** : toutes les dates sont en temps serveur (`.info/serverTimeOffset`). L'hôte recale l'horodatage d'une
+  intention : 2 s de latence tolérées au maximum, jamais dans le futur.
+- Les vues, états et intentions transitent en **JSON sérialisé** : la Realtime Database supprime les `null` et les
+  tableaux vides, ce qui corromprait les états de jeu.
+
+### Salles
+- Code de 4 lettres, sans I, L, O ni chiffres. La salle expire après **6 h d'inactivité** (prolongée à chaque action
+  de l'hôte).
+- **Ménage sans serveur** : index `expiry/{tranche d'une heure}`. Une tranche n'est lisible qu'une fois écoulée, donc
+  aucun code de salle active n'est exposé. À chaque création de salle, les 24 dernières tranches sont nettoyées.
+  Une requête filtrée (`query.endAt <= now`) a d'abord été envisagée, puis écartée : l'émulateur ne la vérifie pas de
+  façon fiable, et je ne voulais pas reposer la sécurité sur un comportement non testable.
+- **Reconnexion** : l'uid anonyme Firebase est persistant (IndexedDB) et la dernière salle est mémorisée dans
+  localStorage. Après un rafraîchissement ou une mise en veille, le joueur revient automatiquement dans la partie,
+  avec sa fiche et son ordre d'arrivée.
+- **Présence** : `onDisconnect` passe le joueur hors ligne. Si l'hôte est hors ligne depuis plus de **30 s**, le
+  joueur en ligne arrivé le plus tôt devient hôte (condition revérifiée par les règles) et reprend la partie
+  depuis `hostState`.
+- Un joueur qui arrive pendant une partie attend la suivante. L'hôte peut retirer un joueur, relancer une partie
+  avec les joueurs en ligne, ou revenir au lobby pour changer les packs ou les équipes.
+- En Mimos par équipes, un joueur arrivé sans équipe est placé dans la moins remplie.
+
+### Sécurité (database.rules.json)
+- Lecture et écriture fermées par défaut ; utilisateur authentifié (anonyme) obligatoire ; impossible de lister les
+  salles.
+- `meta` : lisible par qui connaît le code. Création seulement si le code est libre ou expiré, et seulement à son
+  propre nom. Transfert d'hôte seulement par un membre, si l'hôte est absent ou hors ligne depuis plus de 30 s.
+- `players/{uid}` : chacun n'écrit que sa fiche (pseudo de 1 à 20 caractères, champs contrôlés) ; l'hôte peut
+  retirer un joueur.
+- `view` : membres seulement. `secrets/{uid}` : ce joueur seulement. `hostState` et `intents` en lecture : l'hôte
+  seulement. Intentions : membres, en leur propre nom, 1 000 caractères au maximum.
+- Tests : `npm run test:rules` (12 tests sur les émulateurs, y compris une partie réelle via `FirebaseBackend`),
+  exécutés aussi en CI (job `rules`, Java 21).
+- **Firebase Analytics n'est pas initialisé** (cookies avant consentement : interdit). Il sera branché en phase 5.
+
+### Mise en production des règles (action manuelle)
+- La base est en mode verrouillé tant que `database.rules.json` n'est pas publié. Deux options : copier-coller le
+  fichier dans la console (Realtime Database → Règles → Publier), ou lancer
+  `npx firebase-tools login` puis `npx firebase-tools deploy --only database`.
+- Recommandé : dans Google Cloud Console → Identifiants, restreindre la clé API aux référents HTTP
+  `pannacottafactory.github.io/*` et `localhost:*`.
+
+### Tests
+- 14 tests de session sur `MemoryBackend` : secrets, autorisations, fins de chrono, exclusion, reconnexion,
+  transfert d'hôte.
+- Tests de bout en bout dans Chrome, chaque téléphone dans un contexte isolé, contre les émulateurs : parties
+  complètes des 3 jeux (3 à 4 joueurs), rafraîchissement en pleine partie, départ de l'hôte puis reprise par un
+  invité. Aucune erreur JS.

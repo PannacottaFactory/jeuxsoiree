@@ -11,7 +11,7 @@ export type GameSlug = 'rigolol' | 'mimos' | 'takotac';
  */
 export const FEATURES = {
   play: true,
-  multiplayer: false,
+  multiplayer: true,
 } as const;
 
 export interface PackInfo {

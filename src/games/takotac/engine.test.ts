@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ANSWER_DURATION_MS, buildRound, createGame, currentPlayers, reduce, roundsFor, type TakotacState } from './engine';
+import { ANSWER_DURATION_MS, buildRound, createGame, currentPlayers, readerFor, reduce, roundsFor, type TakotacState } from './engine';
 import { Rng } from '../core/rng';
 import type { Player } from '../core/players';
 
@@ -86,6 +86,25 @@ describe('Takotac : coopération', () => {
     s = reduce(reduce(s, { type: 'start', at: T0 }), { type: 'success', at: T0 + 2000 });
     expect(s.scores[a!]).toBe(2);
     expect(s.scores[b!]).toBe(2);
+  });
+});
+
+describe('Takotac : lecteur (personne ne lit sa propre consigne)', () => {
+  it('le lecteur est le joueur précédent, hors joueurs interrogés', () => {
+    const ids = ['a', 'b', 'c', 'd'];
+    expect(readerFor(ids, ['b'])).toBe('a');
+    expect(readerFor(ids, ['a'])).toBe('d');
+    expect(readerFor(ids, ['b', 'a'])).toBe('d');
+    expect(readerFor(['a', 'b'], ['a'])).toBe('b');
+  });
+  it('sur toute une partie, le lecteur n’est jamais interrogé', () => {
+    for (const n of [2, 3, 5, 8]) {
+      let s = createGame(makePlayers(n), categories, n);
+      while (s.phase !== 'finished') {
+        expect(currentPlayers(s)).not.toContain(s.readerId);
+        s = reduce(reduce(s, { type: 'start', at: T0 }), { type: 'success', at: T0 + 1 });
+      }
+    }
   });
 });
 

@@ -14,6 +14,10 @@ import { useGameSession, usePersistentState } from '~/ui/session';
 import { useScrollTopOn, useTransportState, useWakeLock } from '~/ui/hooks';
 import { play, vibrate } from '~/ui/feedback';
 import type { PlayUrls } from '~/ui/types';
+import { MultiPlay } from '~/ui/multi/MultiPlay';
+import { ModeChooser } from '~/ui/multi/ModeChooser';
+import { usePlayMode } from '~/ui/multi/usePlayMode';
+import { RigololMultiView } from './RigololMultiView';
 
 interface Props {
   phrases: EntryLite[];
@@ -34,6 +38,7 @@ export default function RigololApp(props: Props) {
     packs: [props.packs[0]!.id],
   });
   const [ageOk, setAgeOk] = usePersistentState<boolean>('jds:age-ok', false);
+  const [mode, setMode] = usePlayMode('rigolol', props.adult);
   const session = useGameSession<RigololState, RigololAction>(`${key}:game`, reduce);
   const phrases = useMemo(() => indexById(props.phrases), [props.phrases]);
 
@@ -62,6 +67,47 @@ export default function RigololApp(props: Props) {
       <div class="play">
         <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
         <AgeGate gameName="Rigolol" backHref={props.urls.normal ?? props.urls.back} onAccept={() => setAgeOk(true)} />
+      </div>
+    );
+  }
+
+  if (mode === 'multi') {
+    return (
+      <MultiPlay
+        game="rigolol"
+        gameName="Rigolol"
+        adult={props.adult}
+        role="host"
+        packs={props.packs}
+        joinUrl={props.urls.join}
+        shareUrl={props.urls.share}
+        onExit={() => setMode('choose')}
+        View={RigololMultiView}
+        renderTopBar={(o) => <TopBar title={title} backHref={props.urls.back} inGame={o.inGame} onQuit={o.onQuit} />}
+      />
+    );
+  }
+
+  if (mode === 'choose' && !session.transport) {
+    return (
+      <div class="play">
+        <TopBar title={title} backHref={props.urls.back} inGame={false} onQuit={session.quit} />
+        <ModeChooser
+          gameName="Rigolol"
+          onMulti={() => setMode('multi')}
+          onLocal={() => setMode('local')}
+          resume={
+            session.saved
+              ? {
+                  label: 'Une partie sur ce téléphone est en cours.',
+                  onResume: () => {
+                    setMode('local');
+                    session.resume();
+                  },
+                }
+              : null
+          }
+        />
       </div>
     );
   }
@@ -167,7 +213,7 @@ function RigololGame(props: {
         <p class="progress">{progress}</p>
         <h1 style="font-size: var(--fs-xl); margin: 0">Choisis ta phrase</h1>
         <p class="hint">
-          Tu vas la lire à <strong>{name(turn.targetId)}</strong> en la regardant droit dans les yeux.
+          Tu vas la lire à <strong>{name(turn.targetId)}</strong>, les yeux dans les yeux.
         </p>
         {state.choices.map((id) => {
           const p = props.phrases.get(id);

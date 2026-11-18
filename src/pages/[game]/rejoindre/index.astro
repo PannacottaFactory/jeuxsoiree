@@ -1,0 +1,49 @@
+---
+/**
+ * Page ouverte par le QR code : /<jeu>/rejoindre/?salle=XXXX. Noindex, hors sitemap.
+ * Aucun contenu de jeu n'est inclus : les invités reçoivent les textes dans les vues publiées par l'hôte.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import JoinApp from '~/ui/multi/JoinApp';
+import { GAME_LIST, GAMES, type GameSlug } from '~/games/meta';
+import { getValidatedContent } from '~/data/validate';
+import type { PackOption } from '~/ui/Setup';
+import { absoluteUrl, href } from '~/lib/url';
+
+export function getStaticPaths() {
+  return GAME_LIST.map((g) => ({ params: { game: g.slug } }));
+}
+const slug = Astro.params.game as GameSlug;
+const game = GAMES[slug];
+const content = getValidatedContent()[slug];
+
+// Packs proposés si ce téléphone devient hôte en cours de lobby (transfert d'hôte).
+const packs: PackOption[] = content.packs.map((p) => ({
+  id: p.id,
+  label: p.label,
+  description: game.packs.find((i) => i.id === p.id)?.description ?? '',
+  adult: p.audience === 'adulte',
+  count: '',
+}));
+
+const joinUrls = Object.fromEntries(GAME_LIST.map((g) => [g.slug, href(`/${g.slug}/rejoindre/`)]));
+---
+
+<BaseLayout
+  title={`Rejoindre une partie de ${game.name} | Jeux de soirée`}
+  description={`Rejoins la partie de ${game.name} de tes amis sur ton téléphone.`}
+  path={`/${slug}/rejoindre/`}
+  game={slug}
+  image={`/og/${slug}.png`}
+  noindex
+  bare
+>
+  <JoinApp
+    client:load
+    game={slug}
+    gameName={game.name}
+    packs={packs}
+    joinUrls={joinUrls}
+    urls={{ back: href(`/${slug}/`), share: absoluteUrl(`/${slug}/`, Astro.site), join: absoluteUrl(`/${slug}/rejoindre/`, Astro.site) }}
+  />
+</BaseLayout>

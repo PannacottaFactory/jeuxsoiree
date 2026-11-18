@@ -30,6 +30,8 @@ export interface TurnResult {
   /** Joueur qui a marqué et nombre de points. */
   scorerId: string;
   points: number;
+  /** Phrase lue pendant ce tour. */
+  phraseId: string | null;
 }
 
 export type RigololPhase = 'handoff' | 'choosing' | 'performing' | 'finished';
@@ -133,7 +135,7 @@ export function reduce(state: RigololState, action: RigololAction): RigololState
       const scorerId = action.laughed ? turn.jokerId : turn.targetId;
       const points = action.laughed ? pointsForLaugh(n) : POINTS_FOR_RESIST;
       const scores = { ...state.scores, [scorerId]: (state.scores[scorerId] ?? 0) + points };
-      const lastResult: TurnResult = { ...turn, laughed: action.laughed, scorerId, points };
+      const lastResult: TurnResult = { ...turn, laughed: action.laughed, scorerId, points, phraseId: state.chosenId };
       const turnIndex = state.turnIndex + 1;
 
       if (turnIndex >= state.schedule.length) {

@@ -42,9 +42,26 @@ jobs:
         with:
           path: dist
 
+  # Règles de sécurité Firebase + backend, testés sur les émulateurs (Java requis).
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm install -g npm@11.6.2
+      - run: npm ci
+      - run: npm run test:rules
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, rules]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

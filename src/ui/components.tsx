@@ -285,8 +285,11 @@ export function EndScreen(props: {
   rows: { id: string; name: string; score: number; rank: number }[];
   gameName: string;
   shareUrl: string;
-  onReplay: () => void;
-  onEdit: () => void;
+  /** Absents pour un invité en multijoueur : seul l'hôte relance. */
+  onReplay?: (() => void) | undefined;
+  onEdit?: (() => void) | undefined;
+  /** Message affiché à la place des boutons de relance (ex. « En attente de l'hôte »). */
+  waitingNote?: string;
   footer?: ComponentChildren;
 }) {
   const [toast, setToast] = useState<string | null>(null);
@@ -317,15 +320,25 @@ export function EndScreen(props: {
     <Screen
       actions={
         <>
-          <Btn size="xl" onClick={props.onReplay}>
-            Rejouer
-          </Btn>
-          <div class="screen__actions--row" style="display: flex; gap: var(--sp-2)">
-            <Btn variant="ghost" onClick={props.onEdit} style="flex: 1">
-              Modifier
+          {props.onReplay ? (
+            <Btn size="xl" onClick={props.onReplay}>
+              Rejouer
             </Btn>
+          ) : (
+            props.waitingNote && (
+              <p class="kicker" style="text-align: center" role="status">
+                {props.waitingNote}
+              </p>
+            )
+          )}
+          <div class="screen__actions--row" style="display: flex; gap: var(--sp-2)">
+            {props.onEdit && (
+              <Btn variant="ghost" onClick={props.onEdit} style="flex: 1">
+                Modifier
+              </Btn>
+            )}
             <Btn variant="ghost" onClick={share} style="flex: 1">
-              Partager
+              Partager le jeu
             </Btn>
           </div>
         </>

@@ -12,7 +12,16 @@ npm ci
 npm run dev      # http://localhost:4321/jeuxsoiree/
 npm test         # tests unitaires (Vitest)
 npm run build    # vérification des types + build dans dist/
+npm run test:rules  # règles de sécurité Firebase sur les émulateurs (Java 21 requis)
 ```
+
+## Multijoueur (Firebase)
+
+- Configuration publique : `src/net/firebase/config.ts`. Règles de sécurité : `database.rules.json`.
+- **Publier les règles** après chaque modification : console Firebase → Realtime Database → Règles, ou
+  `npx firebase-tools login` puis `npx firebase-tools deploy --only database`.
+- Tester en local contre les émulateurs : lancer `npx firebase-tools emulators:start --only auth,database`, puis
+  `PUBLIC_FIREBASE_EMULATOR=1 npm run build && npm run preview`.
 
 ## Scripts utiles
 

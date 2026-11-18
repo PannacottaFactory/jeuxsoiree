@@ -70,7 +70,7 @@ Au **début de chaque manche** :
 
 ## Tranché le 2026-11-18 (voir `decisions.md`)
 
-1. Le **joueur interrogé valide** lui-même ses points.
+1. Un **lecteur** lit la consigne (personne ne lit la sienne) : le joueur qui vient de jouer. C'est le lecteur qui valide (précision du 2026-11-18, remplace « le joueur interrogé valide »).
 2. Il faut valider **avant la fin des 7 s** ; à 0, c'est un échec automatique.
 3. Pas de règle de lapsus : une réponse « sortie toute seule » sous le stress ne fait pas échouer.
 4. Pioche sans remise sur toute la partie.
