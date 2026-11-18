@@ -18,7 +18,7 @@ npm run build    # vérification des types + build dans dist/
 
 | Commande | Rôle |
 |---|---|
-| `npm run extract -- "<dossier des scripts Unity>"` | Régénère `src/data/*/content.json` et `docs/contenus-a-relire.md` à partir des anciens `PhraseMaker.cs` |
+| `npm run extract -- "<dossier des scripts Unity>"` | Régénère `src/data/*/content.json` à partir des anciens `PhraseMaker.cs` |
 | `npm run og` | Régénère les images Open Graph (`public/og/`) et l'icône Apple |
 
 ## Domaine personnalisé

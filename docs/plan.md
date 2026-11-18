@@ -81,10 +81,9 @@ Chaque phase se termine par un commit, un résumé et une mise à jour de `docs/
 
 ## 5. Contenus adultes
 
-- Classement **par entrée** (`audience: "tout_public" | "adulte"`), pas seulement par pack : le pack **Films** de
-  Rigolol contient des répliques crues, et les contrepèteries de Tout doux sont grivoises. Je pré-classe
-  automatiquement (pack No Limit = adulte + mots-clés), puis je te livre une liste à relire.
-- Les packs No Limit contiennent aussi des contenus **haineux ou choquants** (Hitler, « Un juif », suicide, insultes),
-  pas seulement sexuels : c'est le risque principal pour AdSense, et une relecture est recommandée.
+- Classement : est `adulte` exactement ce qui vient du pack No Limit (décision du 2026-11-18) ; tout le reste
+  est accessible sans avertissement.
+- On garde tous les contenus, y compris haineux ou choquants (décision du propriétaire). Cela compte pour AdSense :
+  à intégrer dans la synthèse des règles avant la phase 5.
 - URL dédiées en `noindex` (ex. `/<jeu>/jouer/no-limit/`), avertissement 18+ à l'entrée, config
   `ads: { enabled, network }` par mode.

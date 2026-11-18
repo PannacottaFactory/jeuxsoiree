@@ -25,10 +25,12 @@ describe('contenus des jeux', () => {
     expect(content.mimos.actions.some((e) => e.packs.includes('celebrites'))).toBe(false);
   });
 
-  it('toutes les entrées des packs No Limit seuls sont classées adulte', () => {
+  it('est adulte exactement ce qui vient uniquement des packs No Limit (décision 2026-11-18)', () => {
     const lists = [content.rigolol.phrases, content.mimos.subjects, content.mimos.actions, content.takotac.categories];
     for (const list of lists) {
-      for (const e of list) if (e.packs.every((p) => p === 'no-limit')) expect(e.audience).toBe('adulte');
+      for (const e of list) {
+        expect(e.audience).toBe(e.packs.every((p) => p === 'no-limit') ? 'adulte' : 'tout_public');
+      }
     }
   });
 

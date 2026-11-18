@@ -56,16 +56,15 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
 - **Pages `/<jeu>/jouer/`** : provisoires en phase 2 (noindex, hors sitemap).
 - **Images OG** : générées par `scripts/generate-og.mjs` (sharp) et committées. librsvg n'accède pas aux polices web,
   donc le texte est en Segoe UI. À régénérer si la palette change.
-- **Contrepèteries** de Rigolol (38) classées `adulte` : le texte est anodin, le sens caché ne l'est pas.
 - **Pas de Tailwind** : le thème repose sur des variables CSS par jeu (`[data-game]`) ; un CSS natif suffit et reste
   plus léger.
 - **Contenus** : extraits des `.cs` Unity par `scripts/extract-content.mjs` (le chemin des sources est passé en
   argument), puis committés en JSON dans `src/data/<jeu>/`. Schémas zod dans `src/data/schema.ts`, validés au build et
   en test. zod n'est jamais envoyé au navigateur.
-- **Classement des contenus** : chaque entrée a `audience: "tout_public" | "adulte"`. Les packs No Limit sont entièrement
-  `adulte`. Dans les autres packs, des entrées sont signalées `adulte` (mots-clés, contrepèteries) et
-  **ne sont tirées que si la partie inclut un pack adulte** (donc après l'avertissement 18+). Rien n'est supprimé.
-  La liste à relire est dans `docs/contenus-a-relire.md`.
+- **Classement des contenus** : chaque entrée a `audience: "tout_public" | "adulte"`.
+  **Mis à jour le 2026-11-18 à la demande du propriétaire** : est `adulte` exactement ce qui appartient uniquement au
+  pack No Limit. Tout le reste (Films, contrepèteries de Tout doux…) reste `tout_public` et accessible sans
+  avertissement 18+. Le pré-classement par mots-clés et la liste de relecture ont été supprimés. Un test vérifie la règle.
 - **Base path** : `SITE_URL` et `BASE_PATH` en variables d'environnement (par défaut
   `https://pannacottafactory.github.io` et `/jeuxsoiree`). Pour un domaine perso : `SITE_URL=https://mondomaine.fr`,
   `BASE_PATH=/`, plus un fichier `public/CNAME`.

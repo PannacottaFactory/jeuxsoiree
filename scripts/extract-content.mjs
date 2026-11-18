@@ -4,15 +4,15 @@
 // Usage : npm run extract -- "<dossier parent des dossiers « ... - Scripts »>"
 //
 // Les scripts Unity ne sont pas versionnés : ce script lit les fichiers PhraseMaker.cs, fusionne les doublons,
-// attribue des identifiants stables, pré-classe chaque entrée (tout_public / adulte) puis écrit :
-//   - src/data/<jeu>/content.json
-//   - docs/contenus-a-relire.md (entrées signalées hors packs No Limit, à valider à la main)
-// Les corrections manuelles de classement vont dans src/data/audience-overrides.json : elles priment toujours.
+// attribue des identifiants stables et classe chaque entrée, puis écrit src/data/<jeu>/content.json.
+//
+// Classement (décision du 2026-11-18) : une entrée est « adulte » si et seulement si elle n'appartient qu'à des packs
+// adultes (No Limit). Tout le reste est « tout_public », même si le ton est cru.
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { classify, normalizeKey, splitNote, stableId } from './content-utils.mjs';
+import { normalizeKey, splitNote, stableId } from './content-utils.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -111,11 +111,6 @@ function main() {
     console.error('Usage : npm run extract -- "<dossier contenant les dossiers « ... - Scripts »>"');
     process.exit(1);
   }
-  const overridesPath = join(ROOT, 'src/data/audience-overrides.json');
-  /** @type {Record<string, 'tout_public' | 'adulte'>} */
-  const overrides = existsSync(overridesPath) ? JSON.parse(readFileSync(overridesPath, 'utf8')) : {};
-
-  const review = [];
   const summary = [];
 
   for (const [game, cfg] of Object.entries(GAMES)) {
@@ -150,12 +145,7 @@ function main() {
       out[kindKey] = [...bucket.values()].map((entry) => {
         if (ids.has(entry.id)) throw new Error(`Collision d'identifiant ${entry.id}`);
         ids.add(entry.id);
-        const onlyAdultPacks = entry.packs.every((p) => adultPacks.has(p));
-        const auto = onlyAdultPacks ? { audience: 'adulte', reason: 'pack' } : classify(entry.text, entry.note);
-        const audience = overrides[entry.id] ?? auto.audience;
-        if (!onlyAdultPacks && auto.reason !== 'aucun') {
-          review.push({ game, kindKey, ...entry, audience, reason: auto.reason, overridden: entry.id in overrides });
-        }
+        const audience = entry.packs.every((p) => adultPacks.has(p)) ? 'adulte' : 'tout_public';
         return { ...entry, audience };
       });
       const adults = out[kindKey].filter((x) => x.audience === 'adulte').length;
@@ -168,9 +158,7 @@ function main() {
     writeFileSync(join(dir, 'content.json'), toJsonLines(out));
   }
 
-  writeReview(review);
   console.log(summary.join('\n'));
-  console.log(`${review.length} entrées hors No Limit à relire → docs/contenus-a-relire.md`);
 }
 
 /** JSON valide avec une entrée par ligne : compact et lisible dans les diffs git. */
@@ -180,31 +168,6 @@ function toJsonLines(obj) {
     return `  ${JSON.stringify(k)}: [\n${v.map((x) => `    ${JSON.stringify(x)}`).join(',\n')}\n  ]`;
   });
   return `{\n${parts.join(',\n')}\n}\n`;
-}
-
-/** Écrit la liste des entrées signalées, pour relecture humaine. */
-function writeReview(review) {
-  const lines = [
-    '# Contenus à relire',
-    '',
-    'Généré par `npm run extract`. Entrées des packs **tout public** que le pré-classement a signalées.',
-    'Une entrée `adulte` n\'est tirée **que si la partie inclut un pack 18+** ; rien n\'est supprimé.',
-    '',
-    'Pour corriger un classement : ajouter `"<id>": "tout_public"` (ou `"adulte"`) dans',
-    '`src/data/audience-overrides.json`, puis relancer `npm run extract`.',
-    '',
-  ];
-  let current = '';
-  for (const r of review) {
-    const section = `${r.game} — ${r.kindKey}`;
-    if (section !== current) {
-      lines.push('', `## ${section}`, '', '| id | packs | classement | motif | texte |', '|---|---|---|---|---|');
-      current = section;
-    }
-    const text = (r.text + (r.note ? ` (${r.note})` : '')).replace(/\|/g, '\\|');
-    lines.push(`| \`${r.id}\` | ${r.packs.join(', ')} | ${r.audience}${r.overridden ? ' ✋' : ''} | ${r.reason} | ${text} |`);
-  }
-  writeFileSync(join(ROOT, 'docs/contenus-a-relire.md'), lines.join('\n') + '\n');
 }
 
 main();

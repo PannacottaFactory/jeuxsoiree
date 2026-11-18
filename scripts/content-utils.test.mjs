@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { classify, normalizeKey, splitNote, stableId } from './content-utils.mjs';
+import { normalizeKey, splitNote, stableId } from './content-utils.mjs';
 
 describe('splitNote', () => {
   it('sépare une précision finale entre parenthèses', () => {
@@ -25,24 +25,5 @@ describe('stableId', () => {
     expect(a).toMatch(/^rp-[0-9a-z]{7}$/);
     expect(stableId('r', 'phrases', 'abc')).toBe(a);
     expect(stableId('r', 'phrases', 'abd')).not.toBe(a);
-  });
-});
-
-describe('classify', () => {
-  it('classe les contrepèteries en adulte', () => {
-    expect(classify('Partons à Toulouse.', 'contrepèterie').audience).toBe('adulte');
-  });
-  it('détecte les thèmes adultes avec des limites de mot accentuées', () => {
-    expect(classify('Pas commencer à jouer avec mes couilles').audience).toBe('adulte');
-    expect(classify('Rechercher un nazi').reason).toBe('haine');
-  });
-  it('évite les faux positifs connus', () => {
-    expect(classify('Un violoniste').reason).toBe('aucun');
-    expect(classify('Qui envoie un baiser').reason).toBe('aucun');
-    expect(classify("Qu'est-ce qu'un bonbon avec une béquille ? Une sucette.").reason).toBe('aucun');
-    expect(classify('Un cul de jatte').reason).toBe('aucun');
-  });
-  it('laisse les vulgarités légères en tout public', () => {
-    expect(classify('Ça va chier dans le ventilo.')).toEqual({ audience: 'tout_public', reason: 'vulgaire (laissé tout public)' });
   });
 });

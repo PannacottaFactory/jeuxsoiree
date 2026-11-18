@@ -32,32 +32,3 @@ export function stableId(prefix, kind, key) {
   }
   return `${prefix}${kind[0]}-${h.toString(36).padStart(7, '0')}`;
 }
-
-// Limites de mot compatibles avec les lettres accentuées (\b ne les gère pas).
-const W = (body) => new RegExp(`(?<![\\p{L}\\p{N}])(?:${body})(?![\\p{L}\\p{N}])`, 'iu');
-
-/** Thèmes qui rendent une entrée « adulte » (sexe, drogue, haine, mort violente). */
-const ADULT_RULES = [
-  ['sexe', W('sexe|sexuel(?:le)?s?|porno\\w*|partouze\\w*|orgasm\\w*|sodom\\w*|masturb\\w*|godemich\\w*|capotes?|préservatifs?|fellation\\w*|sucer?|suce(?:s|nt)?|branl\\w*|baise[sz]?|enculé\\w*|nichons?|seins?|couilles?|bites?|pénis|vagins?|chattes?|zizis?|érotique\\w*|strip\\w*|strings?|charmes|faciale|gland|prostitu\\w*|putes?|salopes?|touché\\(e\\)|me suis touché')],
-  ['drogue', W('drogues?|cannabis|cocaïne|coke|shit|beuh|joints?|héroïne|ecstasy|chicha')],
-  ['haine', W('nazis?|hitler|juifs?|nègres?|pédés?|gouines?|bougnoules?')],
-  ['violence', W('suicid\\w*|viol(?:é|ée|er|eur|eurs)?|pendus?')],
-];
-
-/** Mots vulgaires « légers » : l'entrée reste tout public, mais apparaît dans la liste de relecture. */
-const MILD_RULE = W('merde\\w*|cul|culs|fesses?|chier|pets?|péter|con|cons|connard\\w*|emmerd\\w*|caisse');
-const CUL_DE_JATTE = /cul[\s-]de[\s-]jatte/iu;
-
-/**
- * Pré-classement automatique d'une entrée d'un pack tout public.
- * @returns {{ audience: 'tout_public' | 'adulte', reason: string }}
- */
-export function classify(text, note) {
-  if (note && /contrepèterie/iu.test(note)) return { audience: 'adulte', reason: 'contrepèterie' };
-  const full = `${text} ${note ?? ''}`;
-  for (const [reason, re] of ADULT_RULES) {
-    if (re.test(full)) return { audience: 'adulte', reason };
-  }
-  if (MILD_RULE.test(full.replace(CUL_DE_JATTE, ''))) return { audience: 'tout_public', reason: 'vulgaire (laissé tout public)' };
-  return { audience: 'tout_public', reason: 'aucun' };
-}
