@@ -1,0 +1,102 @@
+---
+/**
+ * Page de jeu commune aux 3 jeux, en mode tout public ou No Limit.
+ * Prépare côté build les contenus autorisés (les contenus adultes ne sont jamais envoyés sur la page tout public)
+ * puis monte l'îlot Preact du jeu.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import RigololApp from '~/games/rigolol/RigololApp';
+import MimosApp from '~/games/mimos/MimosApp';
+import TakotacApp from '~/games/takotac/TakotacApp';
+import { GAMES, type GameSlug } from '~/games/meta';
+import { getValidatedContent } from '~/data/validate';
+import { getStats, roundDown } from '~/data/stats';
+import type { ContentEntry, Pack } from '~/data/schema';
+import type { EntryLite } from '~/games/core/content';
+import type { PackOption } from '~/ui/Setup';
+import type { PlayUrls } from '~/ui/types';
+import { absoluteUrl, href } from '~/lib/url';
+
+interface Props {
+  slug: GameSlug;
+  adult: boolean;
+}
+const { slug, adult } = Astro.props;
+const game = GAMES[slug];
+const content = getValidatedContent();
+const stats = getStats();
+
+/** Packs proposés : en mode tout public, seulement les packs tout public. */
+const allowedPacks = (packs: Pack[]) => packs.filter((p) => adult || p.audience === 'tout_public');
+
+/** Entrées allégées, limitées aux packs autorisés (les packs adultes n'apparaissent pas dans le HTML tout public). */
+function lite(entries: ContentEntry[], packs: Pack[]): EntryLite[] {
+  const ok = new Set(allowedPacks(packs).map((p) => p.id));
+  return entries
+    .filter((e) => e.packs.some((p) => ok.has(p)))
+    .map((e) => ({ id: e.id, packs: e.packs.filter((p) => ok.has(p)), text: e.text, ...(e.note ? { note: e.note } : {}) }));
+}
+
+/** Libellé du volume d'un pack (« 400+ phrases »). */
+function countLabel(packId: string): string {
+  const unit = (n: number, word: string) => `${n >= 50 ? `${roundDown(n)}+` : n} ${word}`;
+  if (slug === 'rigolol') {
+    const n = stats.rigolol.packs.find((p) => p.pack.id === packId)?.counts['phrases'] ?? 0;
+    return unit(n, 'phrases');
+  }
+  if (slug === 'takotac') {
+    const n = stats.takotac.packs.find((p) => p.pack.id === packId)?.counts['categories'] ?? 0;
+    return unit(n, 'catégories');
+  }
+  const c = stats.mimos.packs.find((p) => p.pack.id === packId)?.counts;
+  return c?.['actions'] ? `${unit(c['subjects'] ?? 0, 'sujets')}, ${unit(c['actions'], 'actions')}` : unit(c?.['subjects'] ?? 0, 'personnages');
+}
+
+const packOptions = (packs: Pack[]): PackOption[] =>
+  allowedPacks(packs).map((p) => {
+    const info = game.packs.find((i) => i.id === p.id);
+    return { id: p.id, label: p.label, description: info?.description ?? '', adult: p.audience === 'adulte', count: countLabel(p.id) };
+  });
+
+const urls: PlayUrls = {
+  back: href(`/${slug}/`),
+  share: absoluteUrl(`/${slug}/`, Astro.site),
+  ...(adult ? { normal: href(`/${slug}/jouer/`) } : { adult: href(`/${slug}/jouer/no-limit/`) }),
+};
+
+const path = adult ? `/${slug}/jouer/no-limit/` : `/${slug}/jouer/`;
+const title = adult ? `${game.name} No Limit (18+)` : `Jouer à ${game.name} en ligne`;
+---
+
+<BaseLayout
+  title={`${title} | Jeux de soirée`}
+  description={`Lance une partie de ${game.name} sur ton téléphone : ${game.players.label}, gratuit et sans appli.`}
+  path={path}
+  game={slug}
+  image={`/og/${slug}.png`}
+  noindex={adult}
+  bare
+>
+  {
+    slug === 'rigolol' && (
+      <RigololApp client:load phrases={lite(content.rigolol.phrases, content.rigolol.packs)} packs={packOptions(content.rigolol.packs)} adult={adult} urls={urls} />
+    )
+  }
+  {
+    slug === 'mimos' && (
+      <MimosApp
+        client:load
+        subjects={lite(content.mimos.subjects, content.mimos.packs)}
+        actions={lite(content.mimos.actions, content.mimos.packs)}
+        packs={packOptions(content.mimos.packs)}
+        adult={adult}
+        urls={urls}
+      />
+    )
+  }
+  {
+    slug === 'takotac' && (
+      <TakotacApp client:load categories={lite(content.takotac.categories, content.takotac.packs)} packs={packOptions(content.takotac.packs)} adult={adult} urls={urls} />
+    )
+  }
+</BaseLayout>

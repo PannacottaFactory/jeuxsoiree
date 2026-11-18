@@ -31,12 +31,14 @@ npm run build    # vérification des types + build dans dist/
 
 ```
 src/
-  pages/        accueil, landing pages, règles, jouer, légal
+  pages/        accueil, landing pages, règles, jouer (+ no-limit 18+), légal
   layouts/      BaseLayout, GameLayout, RulesLayout
-  components/   composants UI partagés
-  games/        métadonnées des jeux (puis moteurs en phase 3)
+  components/   composants Astro partagés (dont PlayPage)
+  games/        métadonnées, moteurs purs (core/, rigolol/, mimos/, takotac/) et écrans Preact
+  net/          GameTransport, LocalTransport (puis transport temps réel en phase 4)
+  ui/           composants de jeu partagés, sons, hooks, préparation de partie
   data/         contenus JSON + schémas zod
-  styles/       tokens, palettes et thèmes par jeu
+  styles/       tokens, palette Néon et thèmes par jeu
   lib/          URL (base path), JSON-LD
 scripts/        extraction des contenus, images OG
 docs/           synthèses de gameplay, plan, décisions

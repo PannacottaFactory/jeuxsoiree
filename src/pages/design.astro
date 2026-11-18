@@ -1,78 +1,45 @@
 ---
 /**
- * Démo du design system (noindex, hors sitemap) : les 3 palettes proposées côte à côte, sur les vrais composants.
- * Chaque bloc porte son propre data-palette : les variables CSS se redéfinissent pour ce sous-arbre, sans JS.
+ * Vitrine du design system (noindex, hors sitemap) : palette Néon et composants, par jeu.
  */
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import Button from '~/components/Button.astro';
 import GameIcon from '~/components/GameIcon.astro';
-import Logo from '~/components/Logo.astro';
 import { GAME_LIST } from '~/games/meta';
-
-const palettes = [
-  { id: 'neon', name: 'Néon', text: 'Jaune soleil, violet-magenta, cyan électrique. Très festif, contrastes maximaux.' },
-  { id: 'bonbon', name: 'Bonbon', text: 'Corail, lavande, menthe. Plus doux et « friendly », moins nocturne.' },
-  { id: 'club', name: 'Club', text: 'Fuchsia, ambre, lime. Le plus audacieux, ambiance boîte de nuit.' },
-] as const;
 ---
 
-<BaseLayout title="Design system | Jeux de soirée" description="Démo des palettes et composants." path="/design/" noindex>
+<BaseLayout title="Design system | Jeux de soirée" description="Palette et composants du design system." path="/design/" noindex>
   <section class="container section">
     <h1>Design system</h1>
     <p class="muted prose">
-      Trois palettes proposées. La palette active du site se choisit dans <code>BaseLayout.astro</code> (prop
-      <code>palette</code>). Toutes les combinaisons texte / accent respectent le contraste WCAG AA.
+      Palette « Néon » : jaune soleil pour Rigolol, violet-magenta pour Mimos, cyan électrique pour Takotac. Chaque écran
+      prend la couleur de son jeu via l’attribut <code>data-game</code>. Contrastes conformes WCAG AA.
     </p>
-
-    {
-      palettes.map((p) => (
-        <section class="palette" data-palette={p.id} aria-labelledby={`pal-${p.id}`}>
-          <div class="palette__head">
-            <Logo size={32} id={`logo-${p.id}`} />
-            <h2 id={`pal-${p.id}`}>Palette « {p.name} »</h2>
-            <p class="muted">{p.text}</p>
+    <div class="grid grid--3">
+      {
+        GAME_LIST.map((g) => (
+          <div class="swatch glass" data-game={g.slug}>
+            <GameIcon game={g.slug} size={72} uid="design" />
+            <p class="eyebrow">{g.tagline}</p>
+            <h2 class="swatch__title gradient-text">{g.name}</h2>
+            <div class="swatch__bar" aria-hidden="true" />
+            <div class="swatch__actions">
+              <Button href="#">Jouer</Button>
+              <Button href="#" variant="ghost">
+                Règles
+              </Button>
+            </div>
+            <div class="swatch__timer" aria-hidden="true">
+              <span>0:07</span>
+            </div>
           </div>
-          <div class="grid grid--3">
-            {GAME_LIST.map((g) => (
-              <div class="swatch glass" data-game={g.slug}>
-                <GameIcon game={g.slug} size={72} uid={p.id} />
-                <p class="eyebrow">{g.tagline}</p>
-                <h3 class="swatch__title gradient-text">{g.name}</h3>
-                <div class="swatch__bar" aria-hidden="true" />
-                <div class="swatch__actions">
-                  <Button href="#">Jouer</Button>
-                  <Button href="#" variant="ghost">
-                    Règles
-                  </Button>
-                </div>
-                <div class="swatch__timer" aria-hidden="true">
-                  <span>0:07</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))
-    }
+        ))
+      }
+    </div>
   </section>
 </BaseLayout>
 
 <style>
-  .palette {
-    margin-top: var(--sp-7);
-  }
-  .palette__head {
-    display: grid;
-    gap: var(--sp-2);
-    margin-bottom: var(--sp-4);
-  }
-  .palette__head h2 {
-    margin: 0;
-    font-size: var(--fs-xl);
-  }
-  .palette__head p {
-    margin: 0;
-  }
   .swatch {
     display: grid;
     gap: var(--sp-3);

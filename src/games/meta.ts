@@ -10,7 +10,7 @@ export type GameSlug = 'rigolol' | 'mimos' | 'takotac';
  * Phase 3 → play: true ; phase 4 → multiplayer: true.
  */
 export const FEATURES = {
-  play: false,
+  play: true,
   multiplayer: false,
 } as const;
 

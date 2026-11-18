@@ -1,0 +1,15 @@
+---
+/**
+ * Écran de jeu, mode No Limit (18+) : URL dédiée, noindex, hors sitemap, avertissement 18+ à l'entrée.
+ * La diffusion de publicité sur ce mode est paramétrable (phase 5, voir docs/decisions.md).
+ */
+import PlayPage from '~/components/PlayPage.astro';
+import { GAME_LIST, type GameSlug } from '~/games/meta';
+
+export function getStaticPaths() {
+  return GAME_LIST.map((g) => ({ params: { game: g.slug } }));
+}
+const slug = Astro.params.game as GameSlug;
+---
+
+<PlayPage slug={slug} adult={true} />

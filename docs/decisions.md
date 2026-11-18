@@ -12,7 +12,7 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
 - En multijoueur, **c'est le joueur actif qui valide ses points** (farceur dans Rigolol, mimeur dans Mimos, joueur
   interrogé dans Takotac). L'hôte garde un bouton de secours si ce joueur est déconnecté.
 - Fiches Play Store hors ligne : aucun lien ni redirection à prévoir.
-- Éditeur du site : **Pannacotta Factory** (à confirmer : la réponse disait « Pannacotta Factor »).
+- Éditeur du site : **Pannacotta Factory** (confirmé).
 - Les scripts Unity ne sont **pas** versionnés dans le dépôt.
 
 ### Rigolol
@@ -42,7 +42,7 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
   - **Node ≥ 22.23.4** et **npm ≥ 11** sont requis (`engines`, `.nvmrc`). npm 10, livré avec Node 22, plante sur
     l'arbre de dépendances (bug arborist `edgesOut`) : la CI installe npm 11.
   - Pendant la phase 2, j'ai compilé avec un Node 22.23.5 portable, sans toucher au Node du système.
-    **À faire de ton côté : mettre à jour Node** (22 LTS récent ou 24 LTS).
+    Node système mis à jour en 22.23.5 via winget le 2026-11-18 (npm 11.6.2 déjà présent).
 - **Preact 10.29** plutôt que 11 (sorti fin septembre 2026) : branche mûre, compatible avec @preact/signals 2.
 - **Polices** : Bricolage Grotesque (variable, 41 Ko, préchargée) pour les titres et les boutons ; **police système**
   pour le texte courant (Inter abandonnée, 48 Ko économisés).
@@ -71,8 +71,47 @@ Chaque entrée : date, décision, raison. Les règles de jeu tranchées ici comp
 - **Limite de GitHub Pages en sous-dossier** : `robots.txt` et `ads.txt` ne sont lus qu'à la racine de l'hôte
   (`pannacottafactory.github.io/`), pas sous `/jeuxsoiree/`. Ils sont générés quand même, et deviendront effectifs avec
   un domaine perso. Le sitemap peut être déclaré à la main dans Google Search Console en attendant.
-- **Palettes** : 3 propositions côte à côte sur la page `/design/` (noindex) : Néon (défaut), Bonbon, Club.
-  Pour changer la palette du site, il suffit de modifier la valeur par défaut de la prop `palette` dans
-  `BaseLayout.astro`. Contrastes vérifiés : accents ≥ 6:1 sur le fond, texte foncé sur accent ≥ 5,8:1.
+- **Palette « Néon » validée le 2026-11-18** (jaune soleil / violet-magenta / cyan électrique). Bonbon et Club sont
+  supprimées, et la page `/design/` (noindex) sert de vitrine du design system. Contrastes vérifiés : accents ≥ 6:1 sur
+  le fond, texte foncé sur accent ≥ 6,5:1.
 - **Mode sombre uniquement** pour l'instant (`color-scheme: dark`). Un thème clair reste possible grâce aux tokens,
   s'il est demandé.
+
+## 2026-11-18 — Phase 3 : moteurs et mode « un seul téléphone »
+
+### Architecture
+- **Moteurs purs** (`src/games/<jeu>/engine.ts`) : `createGame(...)` et `reduce(state, action)`, sans dépendance à
+  l'UI, au réseau ni à l'horloge. Une action invalide dans la phase courante est ignorée (état renvoyé à l'identique),
+  ce qui rendra le multijoueur robuste aux intentions en double.
+- **Hasard déterministe** : l'état du générateur (mulberry32) vit dans l'état de la partie. Même graine + mêmes
+  actions = même partie. Indispensable pour les tests et pour le multijoueur où seul l'hôte tire au sort.
+- **Temps** : les actions chronométrées portent leur horodatage (`at`, ms). Le moteur compare à `deadline` :
+  un « Trouvé » ou un « Validé » horodaté au gong ou après ne compte pas. En multijoueur, c'est l'horloge de l'hôte
+  qui fera foi.
+- **Transport** : interface `GameTransport` (`src/net/`) ; `LocalTransport` applique le réducteur sur place et
+  sauvegarde l'état dans localStorage à chaque action. Un rafraîchissement ou une mise en veille propose de
+  **reprendre la partie** (sauvegarde ignorée après 12 h ou si son format change).
+- **UI** : îlots Preact montés sur `/<jeu>/jouer/` ; composants partagés dans `src/ui/`. Environ 25 Ko de JS gzippé
+  au total. Les pages de jeu pèsent 20 à 35 Ko gzippées, contenus compris. Les landing pages restent sans JS.
+
+### Règles d'implémentation (sans contradiction avec les règles du jeu)
+- **Rigolol** : à chaque tour, 3 phrases sont tirées ; les 2 non choisies sont défaussées (pas de retour en pioche),
+  pour qu'aucune phrase vue ne revienne. L'ordre des joueurs est tiré au hasard en début de partie, puis chaque cible
+  affronte tous les autres joueurs à la suite.
+- **Mimos** : chacun pour soi, ordre de saisie ; en équipes, alternance A1, B1, A2, B2… L'expression affichée au gong
+  compte comme ratée dans le bilan du passage.
+- **Takotac** : ordre de saisie ; le binôme de coopération joue quand on arrive au premier des deux. Au gong,
+  l'échec est automatique (son + vibration) et on passe au joueur suivant.
+
+### Mode No Limit (18+)
+- URL dédiée `/<jeu>/jouer/no-limit/` : `noindex, nofollow`, hors sitemap, avertissement 18+ à l'entrée (mémorisé
+  sur l'appareil). La page tout public ne propose qu'un lien vers ce mode et **ne contient aucune donnée No Limit**
+  dans son HTML (vérifié en test navigateur).
+
+### Confort de jeu
+- Écran « Passe le téléphone à X » avant toute information secrète, bouton d'action dans la zone du pouce.
+- Chrono circulaire, tic sonore sur les 3 dernières secondes, buzzer + vibration au gong.
+- Sons synthétisés en WebAudio (aucun fichier), bouton son global mémorisé, Wake Lock pendant la partie,
+  confettis en fin de partie (désactivés si `prefers-reduced-motion`), partage via la Web Share API avec copie du
+  lien en repli.
+- Préparation (joueurs, packs, mode) mémorisée par jeu : « Rejouer » relance avec les mêmes joueurs.

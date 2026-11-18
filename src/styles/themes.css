@@ -1,41 +1,21 @@
 /*
- * Palettes et thèmes par jeu.
+ * Couleurs des jeux et thèmes.
  *
- * 1. Une palette (attribut data-palette sur <html>) définit 2 couleurs par jeu : --<jeu>-1 et --<jeu>-2.
- *    Trois propositions : « neon » (défaut), « bonbon », « club ». Démo : /design/
+ * 1. Palette « Néon » (validée le 2026-11-18) : 2 couleurs par jeu, --<jeu>-1 et --<jeu>-2.
  * 2. Un thème (attribut data-game sur n'importe quel élément) mappe ces couleurs sur --accent, --accent-2 et --accent-glow.
- *    Tous les composants utilisent uniquement --accent* : changer de jeu ou de palette ne touche à aucun composant.
+ *    Tous les composants utilisent uniquement --accent* : un écran de jeu se colore en posant data-game.
  */
 
-/* --- Palette « Néon » : jaune soleil / violet-magenta / cyan électrique --- */
-:root,
-[data-palette='neon'] {
+:root {
+  /* Rigolol : jaune soleil → orange */
   --rigolol-1: #ffd23f;
   --rigolol-2: #ff8a1f;
+  /* Mimos : violet → magenta */
   --mimos-1: #c47bff;
   --mimos-2: #ff5cc8;
+  /* Takotac : cyan électrique → bleu */
   --takotac-1: #2ee6d6;
   --takotac-2: #3b9bff;
-}
-
-/* --- Palette « Bonbon » : corail / lavande / menthe, plus douce --- */
-[data-palette='bonbon'] {
-  --rigolol-1: #ff8a7a;
-  --rigolol-2: #ffb86b;
-  --mimos-1: #b9a1ff;
-  --mimos-2: #8f7dff;
-  --takotac-1: #62e3a6;
-  --takotac-2: #33c6cc;
-}
-
-/* --- Palette « Club » : fuchsia / ambre / lime, plus agressive --- */
-[data-palette='club'] {
-  --rigolol-1: #ff4d94;
-  --rigolol-2: #ff8a4d;
-  --mimos-1: #ffc94d;
-  --mimos-2: #ff9a3d;
-  --takotac-1: #c2f54d;
-  --takotac-2: #4df5b0;
 }
 
 /* Thème du site (accueil, pages communes) : un dégradé qui reprend les 3 jeux. */
