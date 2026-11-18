@@ -1,0 +1,88 @@
+---
+/**
+ * Illustration vectorielle d'un jeu, colorée par l'accent du jeu (--accent / --accent-2).
+ * Rigolol : visage hilare. Mimos : masque de mime. Takotac : chrono et éclair.
+ * Inline SVG : aucune requête, net à toutes les tailles.
+ */
+import type { GameSlug } from '~/games/meta';
+
+interface Props {
+  game: GameSlug;
+  size?: number;
+  /** Suffixe pour des id de dégradé uniques quand l'icône apparaît plusieurs fois. */
+  uid?: string;
+}
+const { game, size = 120, uid = 'a' } = Astro.props;
+const g = `gi-${game}-${uid}`;
+const ink = '#140f1f';
+---
+
+<svg
+  class="game-icon"
+  width={size}
+  height={size}
+  viewBox="0 0 120 120"
+  aria-hidden="true"
+  focusable="false"
+  data-game={game}
+>
+  <defs>
+    <linearGradient id={g} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" style="stop-color: var(--accent)"></stop>
+      <stop offset="1" style="stop-color: var(--accent-2)"></stop>
+    </linearGradient>
+  </defs>
+  {
+    game === 'rigolol' && (
+      <g>
+        <circle cx="60" cy="62" r="46" fill={`url(#${g})`} />
+        {/* Yeux plissés de rire */}
+        <path d="M33 50c4-7 13-7 17 0" fill="none" stroke={ink} stroke-width="6" stroke-linecap="round" />
+        <path d="M70 50c4-7 13-7 17 0" fill="none" stroke={ink} stroke-width="6" stroke-linecap="round" />
+        {/* Grande bouche ouverte */}
+        <path d="M32 66h56c0 17-12.5 28-28 28S32 83 32 66Z" fill={ink} />
+        <path d="M44 84c4.5-5 27.5-5 32 0-4.5 5.5-10 8-16 8s-11.5-2.5-16-8Z" fill="#ff6b8a" />
+        {/* Larmes de rire */}
+        <path d="M18 52c-5 7-6 12-2 15s9-1 8-7c-.6-3-3-5.5-6-8Z" fill="#7cd3ff" />
+        <path d="M102 52c5 7 6 12 2 15s-9-1-8-7c.6-3 3-5.5 6-8Z" fill="#7cd3ff" />
+      </g>
+    )
+  }
+  {
+    game === 'mimos' && (
+      <g>
+        {/* Visage ovale de mime */}
+        <path d="M60 12c24 0 40 18 40 44 0 30-18 52-40 52S20 86 20 56c0-26 16-44 40-44Z" fill={`url(#${g})`} />
+        {/* Béret */}
+        <path d="M30 30c6-14 22-20 36-18 14 2 25 10 26 20-18-5-44-6-62-2Z" fill={ink} />
+        <circle cx="74" cy="11" r="5" fill={ink} />
+        {/* Yeux en losange (maquillage) */}
+        <path d="M44 48l6 9-6 9-6-9Z" fill={ink} />
+        <path d="M76 48l6 9-6 9-6-9Z" fill={ink} />
+        {/* Doigt « chut » et bouche fermée */}
+        <path d="M50 84c6 3 14 3 20 0" fill="none" stroke={ink} stroke-width="5" stroke-linecap="round" />
+        <rect x="56" y="70" width="8" height="26" rx="4" fill="#ffffff" stroke={ink} stroke-width="3" />
+      </g>
+    )
+  }
+  {
+    game === 'takotac' && (
+      <g>
+        {/* Chrono */}
+        <rect x="50" y="6" width="20" height="10" rx="4" fill={ink} />
+        <rect x="56" y="14" width="8" height="8" fill={ink} />
+        <path d="M92 26l7 7" stroke={ink} stroke-width="7" stroke-linecap="round" />
+        <circle cx="60" cy="66" r="44" fill={`url(#${g})`} />
+        <circle cx="60" cy="66" r="34" fill="none" stroke={ink} stroke-width="4" stroke-dasharray="2 8.7" />
+        {/* Éclair */}
+        <path d="M66 34L42 72h16l-6 28 26-40H61l5-26Z" fill={ink} />
+      </g>
+    )
+  }
+</svg>
+
+<style>
+  .game-icon {
+    filter: drop-shadow(0 12px 30px var(--accent-glow));
+  }
+</style>

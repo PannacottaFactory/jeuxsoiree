@@ -1,0 +1,67 @@
+/*
+ * Palettes et thèmes par jeu.
+ *
+ * 1. Une palette (attribut data-palette sur <html>) définit 2 couleurs par jeu : --<jeu>-1 et --<jeu>-2.
+ *    Trois propositions : « neon » (défaut), « bonbon », « club ». Démo : /design/
+ * 2. Un thème (attribut data-game sur n'importe quel élément) mappe ces couleurs sur --accent, --accent-2 et --accent-glow.
+ *    Tous les composants utilisent uniquement --accent* : changer de jeu ou de palette ne touche à aucun composant.
+ */
+
+/* --- Palette « Néon » : jaune soleil / violet-magenta / cyan électrique --- */
+:root,
+[data-palette='neon'] {
+  --rigolol-1: #ffd23f;
+  --rigolol-2: #ff8a1f;
+  --mimos-1: #c47bff;
+  --mimos-2: #ff5cc8;
+  --takotac-1: #2ee6d6;
+  --takotac-2: #3b9bff;
+}
+
+/* --- Palette « Bonbon » : corail / lavande / menthe, plus douce --- */
+[data-palette='bonbon'] {
+  --rigolol-1: #ff8a7a;
+  --rigolol-2: #ffb86b;
+  --mimos-1: #b9a1ff;
+  --mimos-2: #8f7dff;
+  --takotac-1: #62e3a6;
+  --takotac-2: #33c6cc;
+}
+
+/* --- Palette « Club » : fuchsia / ambre / lime, plus agressive --- */
+[data-palette='club'] {
+  --rigolol-1: #ff4d94;
+  --rigolol-2: #ff8a4d;
+  --mimos-1: #ffc94d;
+  --mimos-2: #ff9a3d;
+  --takotac-1: #c2f54d;
+  --takotac-2: #4df5b0;
+}
+
+/* Thème du site (accueil, pages communes) : un dégradé qui reprend les 3 jeux. */
+:root {
+  --accent: var(--mimos-1);
+  --accent-2: var(--rigolol-1);
+  --accent-glow: color-mix(in srgb, var(--mimos-1) 55%, transparent);
+  --brand-gradient: linear-gradient(110deg, var(--rigolol-1), var(--mimos-1) 50%, var(--takotac-1));
+}
+
+[data-game='rigolol'] {
+  --accent: var(--rigolol-1);
+  --accent-2: var(--rigolol-2);
+}
+[data-game='mimos'] {
+  --accent: var(--mimos-1);
+  --accent-2: var(--mimos-2);
+}
+[data-game='takotac'] {
+  --accent: var(--takotac-1);
+  --accent-2: var(--takotac-2);
+}
+
+:root,
+[data-game] {
+  --accent-glow: color-mix(in srgb, var(--accent) 55%, transparent);
+  --accent-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-2));
+}

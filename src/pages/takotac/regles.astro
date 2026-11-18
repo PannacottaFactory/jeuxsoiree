@@ -1,0 +1,65 @@
+---
+import RulesLayout from '~/layouts/RulesLayout.astro';
+---
+
+<RulesLayout slug="takotac">
+  <p>
+    Takotac est un jeu de rapidité pour 2 à 8 joueurs. À ton tour, une consigne s’affiche, par exemple « Cite 3 instruments
+    à vent », et tu as <strong>7 secondes</strong> pour répondre.
+  </p>
+
+  <h2>Préparer la partie</h2>
+  <ul>
+    <li>Entrez le prénom de chaque joueur (2 minimum, 8 maximum).</li>
+    <li>
+      Cochez au moins un pack : <strong>Tout doux</strong> (catégories du quotidien), <strong>Culture G</strong> (cinéma,
+      histoire, sciences…) ou <strong>No Limit</strong> (catégories trash, réservé aux adultes).
+    </li>
+  </ul>
+
+  <h2>Déroulé d’un tour</h2>
+  <ol>
+    <li>Le jeu annonce le joueur. Il prend le téléphone et appuie pour révéler la consigne : le chrono de 7 secondes démarre.</li>
+    <li>La consigne demande de citer <strong>3</strong> éléments (le plus souvent) ou <strong>4</strong> éléments d’une catégorie.</li>
+    <li>Le joueur donne ses réponses à voix haute et appuie sur <strong>Validé</strong> avant la fin du chrono, ou sur <strong>Échec</strong>.</li>
+    <li>Si le chrono atteint zéro sans validation, c’est un <strong>échec</strong>.</li>
+  </ol>
+
+  <h2>Les points</h2>
+  <ul>
+    <li>Réussi : <strong>+2 points</strong>.</li>
+    <li>Échec : 0 point.</li>
+    <li>
+      Une réponse qu’on n’aurait pas voulu dire à voix haute ne fait pas perdre : ce n’est pas une faute, c’est juste drôle.
+    </li>
+  </ul>
+
+  <h2>Les tours en coopération</h2>
+  <p>
+    Au début de certaines manches, deux joueurs sont tirés au sort pour jouer <strong>ensemble</strong> un seul tour. La
+    consigne devient « Citez 3… ». S’ils réussissent, <strong>chacun</strong> gagne 2 points. Ce tour compte comme leur tour
+    de la manche.
+  </p>
+  <ul>
+    <li>À 2 joueurs : jamais de coopération.</li>
+    <li>De 3 à 6 joueurs : environ 4 manches sur 10.</li>
+    <li>À 7 ou 8 joueurs : à chaque manche.</li>
+  </ul>
+
+  <h2>Manches et fin de partie</h2>
+  <p>Dans une manche, chaque joueur joue une fois. Le nombre de manches dépend du nombre de joueurs :</p>
+  <table>
+    <thead>
+      <tr><th scope="col">Joueurs</th><th scope="col">Manches</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2</td><td>8</td></tr>
+      <tr><td>3 à 5</td><td>6</td></tr>
+      <tr><td>6 à 8</td><td>5</td></tr>
+    </tbody>
+  </table>
+  <p>À la fin de la dernière manche, le classement s’affiche : le joueur qui a le plus de points gagne.</p>
+
+  <h2>Bon à savoir</h2>
+  <p>Une même catégorie ne revient jamais dans une partie.</p>
+</RulesLayout>

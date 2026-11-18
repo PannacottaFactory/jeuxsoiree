@@ -1,0 +1,97 @@
+---
+import GameLayout from '~/layouts/GameLayout.astro';
+import Steps from '~/components/Steps.astro';
+import { FEATURES } from '~/games/meta';
+import { getStats, roundDown } from '~/data/stats';
+import { href } from '~/lib/url';
+import type { FaqItem } from '~/lib/jsonld';
+
+const stats = getStats().takotac;
+const count = (id: string) => stats.packs.find((p) => p.pack.id === id)?.counts['categories'] ?? 0;
+const packCounts = {
+  'tout-doux': `${roundDown(count('tout-doux'))}+ catégories`,
+  'culture-g': `${roundDown(count('culture-g'))}+ catégories`,
+  'no-limit': `${roundDown(count('no-limit'))}+ catégories`,
+};
+const total = roundDown(stats.total);
+
+const steps = [
+  { title: 'Ajoutez les joueurs', text: 'De 2 à 8 joueurs. Cochez un ou plusieurs packs de catégories.' },
+  { title: 'À toi de jouer', text: 'Quand ton nom s’affiche, prends le téléphone et appuie : la consigne apparaît et le chrono démarre.' },
+  { title: '7 secondes', text: '« Cite 3 trucs oranges » : donne 3 réponses (parfois 4) avant la sonnerie.' },
+  { title: '+2 points', text: 'Tu valides avant la fin du chrono : +2 points. Le temps est écoulé ? Raté, c’est au suivant.' },
+  { title: 'Parfois à deux', text: 'En début de manche, deux joueurs peuvent être tirés au sort pour jouer ensemble. S’ils réussissent, chacun prend 2 points.' },
+  { title: 'Le plus rapide gagne', text: 'De 5 à 8 manches selon le nombre de joueurs, puis le classement s’affiche.' },
+];
+
+const faq: FaqItem[] = [
+  { question: 'Combien de joueurs pour jouer à Takotac ?', answer: 'Takotac se joue de 2 à 8 joueurs, autour d’un seul téléphone.' },
+  {
+    question: 'Combien de manches dure une partie ?',
+    answer: '8 manches à 2 joueurs, 6 manches de 3 à 5 joueurs et 5 manches de 6 à 8 joueurs. Chaque joueur joue une fois par manche. Comptez 5 à 15 minutes.',
+  },
+  {
+    question: 'Que se passe-t-il si le chrono sonne avant la fin ?',
+    answer: 'C’est un échec : il faut avoir donné toutes ses réponses et validé avant la fin des 7 secondes. Pas de point, on passe au joueur suivant.',
+  },
+  {
+    question: 'Et si je dis une bêtise sous le stress ?',
+    answer:
+      'Ça arrive à tout le monde, et c’est même le sel du jeu ! Une réponse qu’on n’avait pas prévu de dire à voix haute ne fait pas perdre : elle fait surtout rire la tablée.',
+  },
+  {
+    question: 'C’est quoi, les tours en coopération ?',
+    answer:
+      'Au début de certaines manches, deux joueurs sont tirés au sort pour répondre ensemble à la même consigne (« Citez 3… »). S’ils réussissent, chacun gagne 2 points. Il n’y en a jamais à 2 joueurs, et toujours au-delà de 6 joueurs.',
+  },
+  {
+    question: 'Takotac convient-il aux enfants ?',
+    answer: 'Oui, avec les packs Tout doux et Culture G. Le pack No Limit contient des catégories trash et il est réservé aux adultes.',
+  },
+  {
+    question: 'Faut-il télécharger une application ?',
+    answer: 'Non. Takotac se joue dans le navigateur du téléphone, gratuitement et sans inscription.',
+  },
+  {
+    question: FEATURES.multiplayer ? 'Peut-on jouer chacun sur son téléphone ?' : 'Faut-il un téléphone par joueur ?',
+    answer: FEATURES.multiplayer
+      ? 'Oui : l’hôte affiche un QR code, chacun le scanne et voit la consigne et le chrono sur son propre téléphone.'
+      : 'Non, un seul téléphone suffit : on se le passe de joueur en joueur. Le mode « chacun son téléphone » via QR code arrive bientôt.',
+  },
+];
+---
+
+<GameLayout
+  slug="takotac"
+  lead={`Le jeu de rapidité qui fait dérailler : 7 secondes pour citer 3 trucs, pas une de plus. ${total} catégories, du « trucs oranges » au plus tordu.`}
+  faq={faq}
+  packCounts={packCounts}
+>
+  <section class="section container" aria-labelledby="comment-jouer">
+    <h2 id="comment-jouer">Comment jouer à Takotac ?</h2>
+    <p class="muted prose">
+      Une consigne, un chrono, et c’est parti. Les règles complètes sont sur la page
+      <a href={href('/takotac/regles/')}>règles de Takotac</a>.
+    </p>
+    <Steps steps={steps} />
+  </section>
+
+  <section class="section container prose" aria-labelledby="pression">
+    <h2 id="pression">Un jeu de rapidité où le stress fait dire n’importe quoi</h2>
+    <p>
+      Citer 3 animaux qui ont des griffes, rien de plus simple… jusqu’à ce que le chrono de 7 secondes démarre et que toute la
+      tablée te fixe. Le cerveau se fige, et la première réponse qui sort n’est pas toujours celle qu’on aurait voulu dire à
+      voix haute. C’est exactement pour ça qu’on joue à Takotac.
+    </p>
+    <p>
+      Les {total} catégories vont du quotidien (« trucs qu’on trouve dans un sac à dos ») à la culture générale (« films de
+      Tarantino », « multiples de 11 »). Pour les soirées entre adultes, le pack No Limit pousse le curseur beaucoup plus loin.
+    </p>
+    <h3>Astuces pour réussir en 7 secondes</h3>
+    <ul>
+      <li>Ne cherche pas la réponse parfaite : la plus évidente est souvent la meilleure.</li>
+      <li>Parle pendant que tu réfléchis : une réponse donnée tôt libère de la place pour les suivantes.</li>
+      <li>Regarde autour de toi : les objets de la pièce peuvent te sauver sur « trucs oranges ».</li>
+    </ul>
+  </section>
+</GameLayout>

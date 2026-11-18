@@ -1,0 +1,57 @@
+---
+/**
+ * Écran de jeu. Phase 2 : page d'attente (noindex). Phase 3 : îlot Preact du mode « un seul téléphone ».
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Button from '~/components/Button.astro';
+import GameIcon from '~/components/GameIcon.astro';
+import { GAME_LIST, GAMES, type GameSlug } from '~/games/meta';
+import { href } from '~/lib/url';
+
+export function getStaticPaths() {
+  return GAME_LIST.map((g) => ({ params: { game: g.slug } }));
+}
+
+const slug = Astro.params.game as GameSlug;
+const game = GAMES[slug];
+---
+
+<BaseLayout
+  title={`Jouer à ${game.name}`}
+  description={`Lancer une partie de ${game.name}.`}
+  path={`/${slug}/jouer/`}
+  game={slug}
+  image={`/og/${slug}.png`}
+  noindex
+>
+  <section class="container soon">
+    <GameIcon game={slug} size={140} uid="soon" />
+    <h1><span class="gradient-text">{game.name}</span> arrive très bientôt</h1>
+    <p class="muted">
+      Le jeu est en cours de construction. En attendant, découvre les règles pour être prêt le jour J.
+    </p>
+    <div class="soon__cta">
+      <Button href={href(`/${slug}/regles/`)} size="lg">Lire les règles</Button>
+      <Button href={href(`/${slug}/`)} variant="ghost" size="lg">Retour à {game.name}</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .soon {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: var(--sp-4);
+    padding-block: var(--sp-7);
+  }
+  .soon h1 {
+    font-size: var(--fs-2xl);
+  }
+  .soon__cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--sp-3);
+  }
+</style>

@@ -1,0 +1,123 @@
+---
+import GameLayout from '~/layouts/GameLayout.astro';
+import Steps from '~/components/Steps.astro';
+import { FEATURES } from '~/games/meta';
+import { getStats, roundDown } from '~/data/stats';
+import { getValidatedContent } from '~/data/validate';
+import { href } from '~/lib/url';
+import type { FaqItem } from '~/lib/jsonld';
+
+const stats = getStats().mimos;
+const count = (id: string, kind: 'subjects' | 'actions') => stats.packs.find((p) => p.pack.id === id)?.counts[kind] ?? 0;
+const packCounts = {
+  'tout-doux': `${roundDown(count('tout-doux', 'subjects'))}+ sujets et ${roundDown(count('tout-doux', 'actions'))}+ actions`,
+  celebrites: `${roundDown(count('celebrites', 'subjects'))}+ personnages`,
+  'no-limit': `${roundDown(count('no-limit', 'subjects'))}+ sujets et ${roundDown(count('no-limit', 'actions'))}+ actions`,
+};
+
+// Combinaisons sujet × action jouables sans pack adulte, arrondies (ex. « plus de 150 000 »).
+const content = getValidatedContent().mimos;
+const tp = (list: { audience: string }[]) => list.filter((e) => e.audience === 'tout_public').length;
+const combos = Math.floor((tp(content.subjects) * tp(content.actions)) / 10000) * 10000;
+const combosLabel = combos.toLocaleString('fr-FR');
+
+const steps = [
+  {
+    title: 'Formez les joueurs',
+    text: 'Chacun pour soi (2 à 6 joueurs) ou deux équipes de même taille (2 à 4 joueurs par équipe). Cochez vos packs.',
+  },
+  { title: 'Prêt ? Chrono !', text: 'Le mimeur prend le téléphone et appuie sur « Prêt » : il a 60 secondes.' },
+  {
+    title: 'Mime l’expression',
+    text: 'Un sujet et une action s’affichent, par exemple « Un dentiste » + « qui marche sur un Lego ». Fais-les deviner sans parler.',
+  },
+  {
+    title: 'Trouvé ou passé',
+    text: 'Expression trouvée : +1 point. Trop dure ? Tu peux passer, mais elle est perdue : elle compte dans tes 5 expressions.',
+  },
+  { title: '5 expressions par passage', text: 'Après 5 expressions ou à la fin du chrono, le téléphone passe au joueur suivant. En équipes, on alterne.' },
+  { title: 'Le meilleur mimeur gagne', text: 'Chacun mime plusieurs fois. À la fin, le classement (ou le score des équipes) s’affiche.' },
+];
+
+const faq: FaqItem[] = [
+  {
+    question: 'Combien de joueurs pour jouer à Mimos ?',
+    answer: 'De 2 à 6 joueurs en chacun pour soi, ou de 4 à 8 joueurs en deux équipes de même taille (2 à 4 joueurs par équipe).',
+  },
+  {
+    question: 'Combien de temps dure une partie de Mimos ?',
+    answer:
+      'Environ 10 à 20 minutes. Chaque passage dure au plus 60 secondes, et chacun mime 2 à 4 fois selon le nombre de joueurs : à 2 ou 3 joueurs, 4 passages chacun ; à 4, 3 passages ; à 5 ou plus, 2 passages.',
+  },
+  {
+    question: 'Comment compte-t-on les points ?',
+    answer:
+      'Chaque expression trouvée rapporte 1 point au mimeur en chacun pour soi, ou à son équipe en mode équipes. Une expression passée ne rapporte rien et compte quand même dans les 5 expressions du passage.',
+  },
+  {
+    question: 'Peut-on passer une expression ?',
+    answer:
+      'Oui, mais pas à l’infini : une expression passée est une occasion perdue. Avec 5 expressions par passage, mieux vaut s’accrocher avant d’abandonner.',
+  },
+  {
+    question: 'Que contient le pack Célébrités ?',
+    answer:
+      'Des personnages réels et fictifs : héros de films, personnages de dessins animés, people… Ils remplacent le sujet et se combinent avec les actions des autres packs, par exemple « Batman qui cherche ses clés ».',
+  },
+  {
+    question: 'Mimos convient-il aux enfants ?',
+    answer:
+      'Oui, avec les packs Tout doux et Célébrités. Le pack No Limit contient des expressions osées et il est réservé aux adultes.',
+  },
+  {
+    question: 'Faut-il télécharger une application ?',
+    answer: 'Non. Mimos se joue dans le navigateur du téléphone, gratuitement et sans inscription.',
+  },
+  {
+    question: FEATURES.multiplayer ? 'Peut-on jouer chacun sur son téléphone ?' : 'Faut-il un téléphone par joueur ?',
+    answer: FEATURES.multiplayer
+      ? 'Oui : l’hôte affiche un QR code, chaque joueur le scanne et voit son expression secrète sur son propre téléphone quand vient son tour de mimer.'
+      : 'Non, un seul téléphone suffit : le mimeur le prend, puis le passe au suivant. Le mode « chacun son téléphone » via QR code arrive bientôt.',
+  },
+];
+---
+
+<GameLayout
+  slug="mimos"
+  lead={`Le jeu de mime qui met l’ambiance : 60 secondes pour faire deviner 5 expressions loufoques, sans un mot. Plus de ${combosLabel} combinaisons, en solo ou en équipes.`}
+  faq={faq}
+  packCounts={packCounts}
+>
+  <section class="section container" aria-labelledby="comment-jouer">
+    <h2 id="comment-jouer">Comment jouer à Mimos ?</h2>
+    <p class="muted prose">
+      Un jeu de mime classique, sans cartes à imprimer ni sablier à chercher. Le téléphone tire les expressions et gère le
+      chrono. Toutes les règles sont détaillées sur la page <a href={href('/mimos/regles/')}>règles de Mimos</a>.
+    </p>
+    <Steps steps={steps} />
+  </section>
+
+  <section class="section container prose" aria-labelledby="idees">
+    <h2 id="idees">Des idées de mimes pour soirée à l’infini</h2>
+    <p>
+      Chaque expression associe un <strong>sujet</strong> (un métier, un animal, un sportif, une célébrité…) et une
+      <strong>action</strong> (marcher sur un Lego, chercher ses clés, faire du trampoline…). C’est ce mélange qui rend
+      Mimos si drôle : mimer « un taureau qui fait des bulles de chewing-gum » demande un vrai talent d’improvisation.
+    </p>
+    <p>
+      Les packs Tout doux et Célébrités offrent déjà plus de {combosLabel} combinaisons tout public, de quoi jouer en
+      famille ou entre amis sans jamais retomber sur les mêmes. Le pack No Limit, réservé aux adultes, pimente les fins de soirée.
+    </p>
+    <h3>Conseils pour mimer comme un pro</h3>
+    <ul>
+      <li>Commence par le sujet (le métier ou le personnage), puis enchaîne sur l’action.</li>
+      <li>Exagère tout : plus le geste est grand, plus il se lit de loin.</li>
+      <li>Une expression bloque ? Passe-la vite : tu n’en as que 5, et le chrono tourne.</li>
+    </ul>
+    <h3>Chacun pour soi ou en équipes ?</h3>
+    <p>
+      En <strong>chacun pour soi</strong>, le mimeur marque pour lui : c’est le mode idéal à 3 ou 4. En <strong>équipes</strong>,
+      deux camps de même taille s’affrontent à tour de rôle et chaque expression trouvée rapporte un point à l’équipe du mimeur.
+    </p>
+  </section>
+</GameLayout>

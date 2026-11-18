@@ -1,0 +1,74 @@
+---
+/**
+ * Bouton-lien du design system. Variante « primary » : dégradé de l'accent du jeu courant.
+ * Hauteur minimale 48 px (56 px en « lg ») pour jouer debout, d'une main.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'a'> {
+  href: string;
+  variant?: 'primary' | 'ghost';
+  size?: 'md' | 'lg';
+}
+const { href, variant = 'primary', size = 'md', class: className, ...rest } = Astro.props;
+---
+
+<a href={href} class:list={['btn', `btn--${variant}`, `btn--${size}`, className]} {...rest}>
+  <slot />
+</a>
+
+<style>
+  .btn {
+    --btn-h: var(--tap-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: var(--btn-h);
+    padding: 0 1.4rem;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-display);
+    font-weight: 750;
+    font-size: var(--fs-md);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out),
+      background var(--dur-2);
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn--lg {
+    --btn-h: 3.5rem;
+    padding: 0 2rem;
+    font-size: var(--fs-lg);
+  }
+  .btn--primary {
+    background: var(--accent-gradient);
+    color: var(--on-accent);
+    box-shadow: var(--shadow-glow);
+  }
+  .btn--primary:hover {
+    box-shadow: 0 14px 50px -10px var(--accent-glow);
+    text-decoration: none;
+  }
+  .btn--ghost {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+  }
+  .btn--ghost:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    text-decoration: none;
+  }
+  .btn :global(svg) {
+    width: 1.25em;
+    height: 1.25em;
+  }
+</style>

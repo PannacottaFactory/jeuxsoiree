@@ -1,0 +1,47 @@
+---
+/** Pastilles « en bref » : joueurs, durée, prix, public. */
+interface Props {
+  items: { label: string; value: string }[];
+}
+const { items } = Astro.props;
+---
+
+<dl class="facts">
+  {
+    items.map((f) => (
+      <div class="facts__item glass">
+        <dt class="muted">{f.label}</dt>
+        <dd>{f.value}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2);
+    margin: 0;
+  }
+  @media (min-width: 40rem) {
+    .facts {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .facts__item {
+    padding: var(--sp-3) var(--sp-4);
+    border-radius: var(--radius-md);
+  }
+  .facts dt {
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .facts dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 750;
+    font-size: var(--fs-lg);
+  }
+</style>

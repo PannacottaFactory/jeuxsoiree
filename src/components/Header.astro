@@ -1,0 +1,111 @@
+---
+/**
+ * En-tête : logo + accès direct aux 3 jeux (pastilles colorées). Pas de menu burger : tout tient en 375 px.
+ */
+import Logo from './Logo.astro';
+import { GAME_LIST, type GameSlug } from '~/games/meta';
+import { href } from '~/lib/url';
+
+interface Props {
+  current?: GameSlug | undefined;
+}
+const { current } = Astro.props;
+---
+
+<header class="header">
+  <div class="container header__inner">
+    <a class="header__home" href={href('/')} aria-label="Jeux de soirée, accueil">
+      <Logo size={34} id="logo-header" />
+    </a>
+    <nav aria-label="Jeux">
+      <ul class="header__games">
+        {
+          GAME_LIST.map((g) => (
+            <li>
+              <a
+                class="chip"
+                data-game={g.slug}
+                href={href(`/${g.slug}/`)}
+                aria-current={current === g.slug ? 'page' : undefined}
+              >
+                <span class="chip__dot" aria-hidden="true" />
+                {g.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding-top: env(safe-area-inset-top);
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: var(--blur);
+    backdrop-filter: var(--blur);
+    border-bottom: 1px solid var(--border);
+  }
+  .header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    min-height: 3.75rem;
+    flex-wrap: wrap;
+    padding-block: var(--sp-2);
+  }
+  .header__home {
+    display: inline-flex;
+    min-height: var(--tap-min);
+    align-items: center;
+    text-decoration: none;
+  }
+  .header__games {
+    display: flex;
+    gap: var(--sp-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0 0.8rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-2),
+      background var(--dur-2);
+  }
+  .chip:hover,
+  .chip[aria-current='page'] {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .chip__dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  /* Très petits écrans : logo sans texte pour garder les 3 jeux sur une ligne */
+  @media (max-width: 26rem) {
+    .header__home :global(.logo__text) {
+      display: none;
+    }
+  }
+</style>

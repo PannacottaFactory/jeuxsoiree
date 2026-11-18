@@ -1,0 +1,118 @@
+---
+/**
+ * Démo du design system (noindex, hors sitemap) : les 3 palettes proposées côte à côte, sur les vrais composants.
+ * Chaque bloc porte son propre data-palette : les variables CSS se redéfinissent pour ce sous-arbre, sans JS.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Button from '~/components/Button.astro';
+import GameIcon from '~/components/GameIcon.astro';
+import Logo from '~/components/Logo.astro';
+import { GAME_LIST } from '~/games/meta';
+
+const palettes = [
+  { id: 'neon', name: 'Néon', text: 'Jaune soleil, violet-magenta, cyan électrique. Très festif, contrastes maximaux.' },
+  { id: 'bonbon', name: 'Bonbon', text: 'Corail, lavande, menthe. Plus doux et « friendly », moins nocturne.' },
+  { id: 'club', name: 'Club', text: 'Fuchsia, ambre, lime. Le plus audacieux, ambiance boîte de nuit.' },
+] as const;
+---
+
+<BaseLayout title="Design system | Jeux de soirée" description="Démo des palettes et composants." path="/design/" noindex>
+  <section class="container section">
+    <h1>Design system</h1>
+    <p class="muted prose">
+      Trois palettes proposées. La palette active du site se choisit dans <code>BaseLayout.astro</code> (prop
+      <code>palette</code>). Toutes les combinaisons texte / accent respectent le contraste WCAG AA.
+    </p>
+
+    {
+      palettes.map((p) => (
+        <section class="palette" data-palette={p.id} aria-labelledby={`pal-${p.id}`}>
+          <div class="palette__head">
+            <Logo size={32} id={`logo-${p.id}`} />
+            <h2 id={`pal-${p.id}`}>Palette « {p.name} »</h2>
+            <p class="muted">{p.text}</p>
+          </div>
+          <div class="grid grid--3">
+            {GAME_LIST.map((g) => (
+              <div class="swatch glass" data-game={g.slug}>
+                <GameIcon game={g.slug} size={72} uid={p.id} />
+                <p class="eyebrow">{g.tagline}</p>
+                <h3 class="swatch__title gradient-text">{g.name}</h3>
+                <div class="swatch__bar" aria-hidden="true" />
+                <div class="swatch__actions">
+                  <Button href="#">Jouer</Button>
+                  <Button href="#" variant="ghost">
+                    Règles
+                  </Button>
+                </div>
+                <div class="swatch__timer" aria-hidden="true">
+                  <span>0:07</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .palette {
+    margin-top: var(--sp-7);
+  }
+  .palette__head {
+    display: grid;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-4);
+  }
+  .palette__head h2 {
+    margin: 0;
+    font-size: var(--fs-xl);
+  }
+  .palette__head p {
+    margin: 0;
+  }
+  .swatch {
+    display: grid;
+    gap: var(--sp-3);
+    padding: var(--sp-5);
+  }
+  .swatch .eyebrow {
+    margin: 0;
+  }
+  .swatch__title {
+    font-size: var(--fs-2xl);
+    margin: 0;
+  }
+  .swatch__bar {
+    height: 0.6rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-gradient);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .swatch__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+  }
+  .swatch__timer {
+    display: grid;
+    place-items: center;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 0 70%, var(--surface-strong) 70% 100%);
+  }
+  .swatch__timer span {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: var(--bg);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+  }
+</style>

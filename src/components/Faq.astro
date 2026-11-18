@@ -1,0 +1,77 @@
+---
+/**
+ * FAQ accessible sans JavaScript (<details>/<summary>). Le JSON-LD FAQPage est généré par la page
+ * à partir des mêmes données (faqLd), pour que texte affiché et données structurées soient identiques.
+ */
+import type { FaqItem } from '~/lib/jsonld';
+
+interface Props {
+  items: FaqItem[];
+  title?: string;
+}
+const { items, title = 'Questions fréquentes' } = Astro.props;
+---
+
+<section class="section" aria-labelledby="faq-title">
+  <div class="container">
+    <h2 id="faq-title">{title}</h2>
+    <div class="faq">
+      {
+        items.map((item) => (
+          <details class="faq__item glass">
+            <summary>
+              <span class="faq__q">{item.question}</span>
+            </summary>
+            <p class="faq__a muted">{item.answer}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    gap: var(--sp-3);
+    max-width: var(--prose-max);
+  }
+  .faq__item {
+    border-radius: var(--radius-md);
+    padding: 0 var(--sp-4);
+  }
+  .faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    min-height: 3.5rem;
+    padding-block: var(--sp-3);
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq__item summary::after {
+    content: '+';
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1;
+    color: var(--accent);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .faq__item[open] summary::after {
+    transform: rotate(45deg);
+  }
+  .faq__q {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-md);
+    line-height: 1.3;
+  }
+  .faq__a {
+    margin: 0 0 var(--sp-4);
+  }
+</style>

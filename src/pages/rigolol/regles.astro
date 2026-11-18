@@ -1,0 +1,59 @@
+---
+import RulesLayout from '~/layouts/RulesLayout.astro';
+---
+
+<RulesLayout slug="rigolol">
+  <p>
+    Rigolol est un jeu « essaye de ne pas rire » pour 2 à 6 joueurs. À chaque tour, un joueur, le <strong>farceur</strong>,
+    tente de faire rire un autre joueur, la <strong>cible</strong>, en lui lisant une phrase drôle.
+  </p>
+
+  <h2>Préparer la partie</h2>
+  <ul>
+    <li>Entrez le prénom de chaque joueur (2 minimum, 6 maximum).</li>
+    <li>
+      Cochez au moins un pack : <strong>Tout doux</strong> (blagues et jeux de mots), <strong>Films</strong> (répliques
+      cultes) ou <strong>No Limit</strong> (humour trash, réservé aux adultes). Les phrases des packs cochés sont mélangées.
+    </li>
+  </ul>
+
+  <h2>Déroulé d’un tour</h2>
+  <ol>
+    <li>Le jeu annonce le farceur et la cible.</li>
+    <li>Le farceur voit <strong>3 phrases</strong> tirées au hasard et en choisit une.</li>
+    <li>Il la lit ou la joue à la cible, face à face.</li>
+    <li>Le farceur indique si la cible <strong>a ri</strong> ou <strong>n’a pas ri</strong>.</li>
+  </ol>
+
+  <h2>Les points</h2>
+  <ul>
+    <li>La cible a ri : le farceur gagne <strong>autant de points qu’il y a de joueurs</strong> (4 points dans une partie à 4).</li>
+    <li>La cible n’a pas ri : elle gagne <strong>1 point</strong>.</li>
+  </ul>
+
+  <h2>Ordre de jeu et fin de partie</h2>
+  <p>
+    Pendant qu’un joueur est la cible, <strong>chacun des autres joueurs</strong> tente une fois de le faire rire. Ensuite,
+    un autre joueur devient la cible. Un <strong>cycle</strong> est terminé quand tout le monde a été la cible une fois.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Joueurs</th><th scope="col">Cycles</th><th scope="col">Tours au total</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2</td><td>4</td><td>8</td></tr>
+      <tr><td>3</td><td>2</td><td>12</td></tr>
+      <tr><td>4</td><td>2</td><td>24</td></tr>
+      <tr><td>5</td><td>1</td><td>20</td></tr>
+      <tr><td>6</td><td>1</td><td>30</td></tr>
+    </tbody>
+  </table>
+  <p>À la fin du dernier cycle, le classement s’affiche : le joueur qui a le plus de points gagne.</p>
+
+  <h2>Bon à savoir</h2>
+  <ul>
+    <li>Une même phrase ne sort jamais deux fois dans une partie.</li>
+    <li>Il n’y a pas de chrono : prenez le temps de soigner la chute.</li>
+    <li>Mettez-vous d’accord avant de commencer : un sourire, ça compte comme un rire ?</li>
+  </ul>
+</RulesLayout>

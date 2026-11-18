@@ -1,0 +1,87 @@
+---
+import Logo from './Logo.astro';
+import { GAME_LIST, SITE } from '~/games/meta';
+import { href } from '~/lib/url';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <Logo size={30} id="logo-footer" />
+      <p class="muted">Des jeux de soirée gratuits, à jouer entre amis directement sur ton téléphone.</p>
+    </div>
+    <nav aria-label="Jeux et règles" class="footer__col">
+      <h2 class="footer__title">Les jeux</h2>
+      <ul>
+        {
+          GAME_LIST.map((g) => (
+            <li>
+              <a href={href(`/${g.slug}/`)}>{g.name}</a> · <a href={href(`/${g.slug}/regles/`)}>règles</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <nav aria-label="Informations" class="footer__col">
+      <h2 class="footer__title">Infos</h2>
+      <ul>
+        <li><a href={href('/mentions-legales/')}>Mentions légales</a></li>
+      </ul>
+    </nav>
+  </div>
+  <p class="container footer__copy muted">© {year} {SITE.publisher}</p>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--sp-8);
+    padding-block: var(--sp-6) calc(var(--sp-5) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  .footer__inner {
+    display: grid;
+    gap: var(--sp-5);
+  }
+  @media (min-width: 48rem) {
+    .footer__inner {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+  }
+  .footer__brand p {
+    margin-top: var(--sp-3);
+    max-width: 24rem;
+    font-size: var(--fs-sm);
+  }
+  .footer__title {
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: var(--sp-3);
+  }
+  .footer__col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .footer__col li {
+    min-height: var(--tap-min);
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+  }
+  .footer__col a {
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+  }
+  .footer__copy {
+    margin-top: var(--sp-5);
+    margin-bottom: 0;
+    font-size: var(--fs-xs);
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+/**
+ * Fil d'Ariane visible. Le JSON-LD BreadcrumbList est généré par la page avec les mêmes éléments.
+ */
+interface Props {
+  items: { name: string; href: string }[];
+}
+const { items } = Astro.props;
+---
+
+<nav class="crumbs container" aria-label="Fil d'Ariane">
+  <ol>
+    {
+      items.map((item, i) => (
+        <li>
+          {i < items.length - 1 ? <a href={item.href}>{item.name}</a> : <span aria-current="page">{item.name}</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.4rem;
+    list-style: none;
+    padding: var(--sp-4) 0 0;
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+  }
+  .crumbs li + li::before {
+    content: '›';
+    margin-right: 0.4rem;
+    color: var(--text-muted);
+  }
+  .crumbs a {
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+  .crumbs [aria-current] {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--text);
+  }
+</style>

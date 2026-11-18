@@ -1,0 +1,106 @@
+---
+import GameLayout from '~/layouts/GameLayout.astro';
+import Steps from '~/components/Steps.astro';
+import { FEATURES } from '~/games/meta';
+import { getStats, roundDown } from '~/data/stats';
+import { href } from '~/lib/url';
+import type { FaqItem } from '~/lib/jsonld';
+
+const stats = getStats().rigolol;
+const count = (id: string) => stats.packs.find((p) => p.pack.id === id)?.counts['phrases'] ?? 0;
+const packCounts = {
+  'tout-doux': `${roundDown(count('tout-doux'))}+ phrases`,
+  films: `${roundDown(count('films'))}+ répliques`,
+  'no-limit': `${roundDown(count('no-limit'))}+ phrases`,
+};
+const total = roundDown(stats.total);
+
+const steps = [
+  { title: 'Ajoutez les joueurs', text: 'De 2 à 6 joueurs. Cochez un ou plusieurs packs de phrases.' },
+  { title: 'Un farceur, une cible', text: 'Le jeu désigne qui essaie de faire rire (le farceur) et qui doit garder son sérieux (la cible).' },
+  { title: 'Choisis ta phrase', text: 'Le farceur voit 3 phrases et en choisit une. Il la lit à la cible en la regardant droit dans les yeux.' },
+  {
+    title: 'Elle a ri ?',
+    text: 'Si la cible craque, le farceur marque autant de points qu’il y a de joueurs. Si elle tient bon, elle gagne 1 point.',
+  },
+  { title: 'Chacun son tour', text: 'Tous les autres joueurs tentent leur chance sur la même cible, puis c’est quelqu’un d’autre qui devient la cible.' },
+  { title: 'Le plus drôle gagne', text: 'Quand tout le monde a été la cible, la partie s’arrête et le classement s’affiche.' },
+];
+
+const faq: FaqItem[] = [
+  {
+    question: 'Combien de joueurs faut-il pour jouer à Rigolol ?',
+    answer: 'Rigolol se joue de 2 à 6 joueurs. À 2, la partie est plus longue (4 cycles) pour que chacun ait le temps de faire rire l’autre.',
+  },
+  {
+    question: 'Combien de temps dure une partie ?',
+    answer: `Entre 10 et 20 minutes environ, selon le nombre de joueurs. Une partie compte de 8 tours (à 2 joueurs) à 30 tours (à 6 joueurs).`,
+  },
+  {
+    question: 'Comment marque-t-on des points ?',
+    answer:
+      'Faire rire la cible rapporte autant de points qu’il y a de joueurs (5 points dans une partie à 5). Résister rapporte 1 point à la cible. Faire rire paie gros, mais garder son sérieux finit aussi par payer.',
+  },
+  {
+    question: 'Qui décide si la cible a ri ?',
+    answer: 'C’est le farceur qui valide le résultat. Un sourire en coin, ça compte ? À vous de vous mettre d’accord avant la partie !',
+  },
+  {
+    question: 'Peut-on jouer à Rigolol avec des enfants ?',
+    answer:
+      'Oui, avec le pack Tout doux (blagues, jeux de mots, devinettes). Le pack Films reprend des répliques cultes, parfois avec des gros mots. Le pack No Limit est réservé aux adultes : les phrases les plus crues n’apparaissent que s’il est coché.',
+  },
+  {
+    question: 'Faut-il télécharger une application ?',
+    answer: 'Non. Rigolol se joue directement dans le navigateur du téléphone, gratuitement et sans inscription.',
+  },
+  {
+    question: FEATURES.multiplayer ? 'Peut-on jouer chacun sur son téléphone ?' : 'Faut-il un téléphone par joueur ?',
+    answer: FEATURES.multiplayer
+      ? 'Oui : l’hôte crée la partie et affiche un QR code. Les autres le scannent et rejoignent la partie sur leur propre téléphone. Vous pouvez aussi vous passer un seul téléphone.'
+      : 'Non, un seul téléphone suffit : on se le passe de joueur en joueur. Le mode « chacun son téléphone » via QR code arrive bientôt.',
+  },
+];
+---
+
+<GameLayout
+  slug="rigolol"
+  lead={`Le jeu « Essaye de ne pas rire » à sortir à l’apéro : ${total} phrases, blagues et répliques cultes pour faire craquer tes amis. Sans cartes, sans appli, juste un téléphone.`}
+  faq={faq}
+  packCounts={packCounts}
+>
+  <section class="section container" aria-labelledby="comment-jouer">
+    <h2 id="comment-jouer">Comment jouer à Rigolol ?</h2>
+    <p class="muted prose">
+      Le principe tient en une phrase : fais rire les autres, mais ne ris pas quand c’est ton tour d’être la cible.
+      Voici le déroulé d’une partie. Les règles détaillées sont sur la page <a href={href('/rigolol/regles/')}>règles de Rigolol</a>.
+    </p>
+    <Steps steps={steps} />
+  </section>
+
+  <section class="section container prose" aria-labelledby="pourquoi">
+    <h2 id="pourquoi">Le jeu pour ne pas rire entre amis, version téléphone</h2>
+    <p>
+      Le défi « essaye de ne pas rire » fait un carton sur les réseaux. Rigolol l’emmène autour de la table : plus besoin de
+      chercher des blagues, le jeu en propose {total} réparties en trois packs. Il y a des jeux de mots de tonton, des
+      devinettes absurdes, des contrepèteries, des répliques de films cultes et, pour les soirées sans limite, de l’humour
+      bien plus noir.
+    </p>
+    <p>
+      Le barème rend chaque tour tendu. Faire rire rapporte autant de points qu’il y a de joueurs, alors que résister ne
+      rapporte qu’un point. Tout le monde a donc intérêt à sortir son meilleur jeu d’acteur… et la cible à se mordre les joues.
+    </p>
+    <h3>Nos conseils pour faire craquer la cible</h3>
+    <ul>
+      <li>Prends ton temps : un silence gênant avant la chute fait souvent plus d’effet que la blague elle-même.</li>
+      <li>Joue la phrase au lieu de la lire : accent, voix grave, regard fixe, tout est permis.</li>
+      <li>Choisis bien parmi les 3 phrases : un jeu de mots pour un ami bon public, l’absurde pour un pince-sans-rire.</li>
+    </ul>
+    <h3>Et pour ne pas rire ?</h3>
+    <ul>
+      <li>Fixe un point au-dessus des yeux du farceur plutôt que son regard.</li>
+      <li>Pense à quelque chose de très ennuyeux : ta déclaration d’impôts, une file d’attente…</li>
+      <li>Respire lentement par le nez : le fou rire commence souvent par un souffle qui s’échappe.</li>
+    </ul>
+  </section>
+</GameLayout>

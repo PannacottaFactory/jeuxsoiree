@@ -1,0 +1,205 @@
+---
+/**
+ * Gabarit des landing pages de jeu : hero + « en bref » + contenu propre au jeu (slot) + packs + FAQ + autres jeux.
+ * Les textes spécifiques (déroulé, conseils, FAQ) sont fournis par chaque page.
+ */
+import BaseLayout from './BaseLayout.astro';
+import Button from '~/components/Button.astro';
+import GameIcon from '~/components/GameIcon.astro';
+import GameCard from '~/components/GameCard.astro';
+import Facts from '~/components/Facts.astro';
+import Faq from '~/components/Faq.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import { FEATURES, GAME_LIST, GAMES, type GameSlug } from '~/games/meta';
+import { absoluteUrl, href } from '~/lib/url';
+import { breadcrumbLd, faqLd, gameLd, type FaqItem } from '~/lib/jsonld';
+
+interface Props {
+  slug: GameSlug;
+  /** Accroche du hero (texte riche autorisé via le slot « lead » si besoin). */
+  lead: string;
+  faq: FaqItem[];
+  /** Nombre d'entrées par pack, affiché dans la section packs (ex. { 'tout-doux': '400+ phrases' }). */
+  packCounts: Record<string, string>;
+}
+
+const { slug, lead, faq, packCounts } = Astro.props;
+const game = GAMES[slug];
+const path = `/${slug}/`;
+const url = absoluteUrl(path, Astro.site);
+const image = `/og/${slug}.png`;
+const crumbs = [
+  { name: 'Accueil', href: href('/') },
+  { name: game.name, href: href(path) },
+];
+const others = GAME_LIST.filter((g) => g.slug !== slug);
+
+const jsonLd = [
+  gameLd(game, url, absoluteUrl(image, Astro.site)),
+  breadcrumbLd(crumbs.map((c) => ({ name: c.name, url: new URL(c.href, Astro.site).toString() }))),
+  faqLd(faq),
+];
+---
+
+<BaseLayout
+  title={game.seo.title}
+  description={game.seo.description}
+  path={path}
+  game={slug}
+  image={image}
+  imageAlt={`${game.name}, ${game.tagline}`}
+  jsonLd={jsonLd}
+>
+  <Breadcrumbs items={crumbs} />
+
+  <section class="hero container">
+    <div class="hero__text">
+      <p class="eyebrow rise">{game.tagline}</p>
+      <h1 class="rise" style="--i: 1">
+        <span class="gradient-text">{game.name}</span>
+        <span class="hero__h1-sub">{game.seo.title.split(' : ')[1] ?? game.tagline}</span>
+      </h1>
+      <p class="hero__lead rise" style="--i: 2">{lead}</p>
+      <div class="hero__cta rise" style="--i: 3">
+        <Button href={href(`/${slug}/jouer/`)} size="lg">
+          {FEATURES.play ? `Jouer à ${game.name}` : 'Jouer (bientôt)'}
+        </Button>
+        <Button href={href(`/${slug}/regles/`)} variant="ghost" size="lg">Lire les règles</Button>
+      </div>
+    </div>
+    <div class="hero__art rise" style="--i: 2">
+      <GameIcon game={slug} size={220} uid="hero" />
+    </div>
+  </section>
+
+  <section class="container section--tight" aria-label="En bref">
+    <Facts
+      items={[
+        { label: 'Joueurs', value: game.players.label.replace(' joueurs', '') },
+        { label: 'Durée', value: game.duration },
+        { label: 'Prix', value: 'Gratuit' },
+        { label: 'Matériel', value: FEATURES.multiplayer ? '1 téléphone ou +' : '1 téléphone' },
+      ]}
+    />
+  </section>
+
+  <slot />
+
+  <section class="section container" aria-labelledby="packs-title">
+    <h2 id="packs-title">Les packs de {game.name}</h2>
+    <p class="muted prose">
+      Avant chaque partie, coche un ou plusieurs packs : leurs contenus sont mélangés. Tous les packs sont gratuits.
+    </p>
+    <ul class="packs grid grid--3">
+      {
+        game.packs.map((p) => (
+          <li class="pack glass">
+            <h3 class="pack__name">
+              {p.label}
+              {p.adult && <span class="pack__badge">18+</span>}
+            </h3>
+            <p class="muted">{p.description}</p>
+            {packCounts[p.id] && <p class="pack__count">{packCounts[p.id]}</p>}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <Faq items={faq} title={`Questions fréquentes sur ${game.name}`} />
+
+  <section class="section container" aria-labelledby="others-title">
+    <h2 id="others-title">Les autres jeux de soirée</h2>
+    <div class="grid grid--2">
+      {others.map((g, i) => <GameCard game={g} index={i} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: var(--sp-5);
+    align-items: center;
+    padding-block: var(--sp-5) var(--sp-6);
+  }
+  @media (min-width: 52rem) {
+    .hero {
+      grid-template-columns: 1.4fr 1fr;
+      padding-block: var(--sp-7);
+    }
+  }
+  .hero h1 {
+    margin-bottom: var(--sp-4);
+  }
+  .hero__h1-sub {
+    display: block;
+    margin-top: var(--sp-2);
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    color: var(--text);
+  }
+  .hero__lead {
+    font-size: var(--fs-lg);
+    color: var(--text-muted);
+    max-width: 36rem;
+  }
+  .hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-5);
+  }
+  /* Sur mobile, le bouton Jouer prend toute la largeur : impossible à rater */
+  @media (max-width: 30rem) {
+    .hero__cta :global(.btn) {
+      width: 100%;
+    }
+  }
+  .hero__art {
+    display: grid;
+    place-items: center;
+    order: -1;
+  }
+  .hero__art :global(svg) {
+    width: min(42vw, 220px);
+    height: auto;
+  }
+  @media (min-width: 52rem) {
+    .hero__art {
+      order: 0;
+    }
+    .hero__art :global(svg) {
+      width: 220px;
+    }
+  }
+  .packs {
+    list-style: none;
+    padding: 0;
+    margin: var(--sp-5) 0 0;
+  }
+  .pack {
+    padding: var(--sp-5);
+    border-radius: var(--radius-md);
+  }
+  .pack__name {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: var(--fs-lg);
+  }
+  .pack__badge {
+    padding: 0.1rem 0.5rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: var(--fs-xs);
+    font-weight: 800;
+  }
+  .pack__count {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 750;
+    color: var(--accent);
+  }
+</style>

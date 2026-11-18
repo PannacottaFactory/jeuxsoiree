@@ -1,0 +1,54 @@
+# Tests + build + déploiement sur GitHub Pages.
+# Prérequis (une seule fois) : Settings → Pages → Source : « GitHub Actions ».
+# Domaine perso : définir les variables de dépôt SITE_URL (https://mondomaine.fr) et BASE_PATH (/),
+# et ajouter public/CNAME. Sans variables, le site est servi sur https://pannacottafactory.github.io/jeuxsoiree/.
+name: Déploiement
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://pannacottafactory.github.io' }}
+      BASE_PATH: ${{ vars.BASE_PATH || '/jeuxsoiree' }}
+      ASTRO_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # Node 22 embarque npm 10, qui plante sur l'arbre de dépendances (bug arborist) : npm 11 requis.
+      - run: npm install -g npm@11.6.2
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

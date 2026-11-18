@@ -1,0 +1,134 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import GameCard from '~/components/GameCard.astro';
+import Button from '~/components/Button.astro';
+import Faq from '~/components/Faq.astro';
+import { FEATURES, GAME_LIST, SITE } from '~/games/meta';
+import { absoluteUrl, href } from '~/lib/url';
+import { faqLd, websiteLd, type FaqItem } from '~/lib/jsonld';
+
+const faq: FaqItem[] = [
+  {
+    question: 'Les jeux sont-ils vraiment gratuits ?',
+    answer: 'Oui, les 3 jeux et tous leurs packs sont gratuits, sans inscription. Le site est financé par la publicité.',
+  },
+  {
+    question: 'Faut-il installer une application ?',
+    answer: 'Non. Tout se joue dans le navigateur du téléphone (iPhone ou Android), d’une tablette ou d’un ordinateur.',
+  },
+  {
+    question: 'Combien de joueurs faut-il ?',
+    answer: 'Il faut au moins 2 joueurs. Rigolol se joue jusqu’à 6, Mimos et Takotac jusqu’à 8.',
+  },
+  {
+    question: FEATURES.multiplayer ? 'Peut-on jouer chacun sur son téléphone ?' : 'Faut-il un téléphone par joueur ?',
+    answer: FEATURES.multiplayer
+      ? 'Les deux sont possibles : soit on se passe un seul téléphone, soit chacun rejoint la partie sur le sien en scannant un QR code.'
+      : 'Non, un seul téléphone suffit : on se le passe de joueur en joueur. Bientôt, chacun pourra aussi rejoindre la partie sur son propre téléphone en scannant un QR code.',
+  },
+  {
+    question: 'Y a-t-il des contenus pour adultes ?',
+    answer:
+      'Chaque jeu propose un pack No Limit, réservé aux adultes et désactivé par défaut. Sans lui, les contenus conviennent à une soirée entre amis ou en famille.',
+  },
+];
+---
+
+<BaseLayout
+  title={SITE.title}
+  description={SITE.description}
+  path="/"
+  jsonLd={[websiteLd(absoluteUrl('/', Astro.site)), faqLd(faq)]}
+>
+  <section class="home-hero container">
+    <p class="eyebrow rise">Gratuit · sans appli · sans inscription</p>
+    <h1 class="rise" style="--i: 1">
+      <span class="brand-gradient-text">Jeux de soirée</span> entre amis, sur ton téléphone
+    </h1>
+    <p class="home-hero__lead rise" style="--i: 2">
+      Trois jeux d’apéro pour rire ensemble : essayer de ne pas rire, mimer sans un mot et répondre en 7 secondes chrono.
+      Sors ton téléphone, c’est parti.
+    </p>
+    <div class="rise" style="--i: 3">
+      <Button href="#jeux" size="lg">Choisir un jeu</Button>
+    </div>
+  </section>
+
+  <section id="jeux" class="section container" aria-labelledby="jeux-title">
+    <h2 id="jeux-title" class="visually-hidden">Les 3 jeux</h2>
+    <div class="grid grid--3">
+      {GAME_LIST.map((g, i) => <GameCard game={g} index={i} />)}
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="comment">
+    <h2 id="comment">Comment ça marche ?</h2>
+    <div class="grid grid--2">
+      <div class="mode glass">
+        <h3>Un seul téléphone</h3>
+        <p class="muted">
+          On se passe le téléphone. Quand une information doit rester secrète, un écran « Passe le téléphone à… » la cache
+          jusqu’à ce que le bon joueur l’ait en main.
+        </p>
+      </div>
+      <div class="mode glass">
+        <h3>Chacun son téléphone {!FEATURES.multiplayer && <span class="soon">bientôt</span>}</h3>
+        <p class="muted">
+          L’hôte affiche un QR code, les autres le scannent et rejoignent la partie. Chacun voit ce qui le concerne : sa carte
+          à mimer, sa consigne, son chrono.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section container prose" aria-labelledby="pourquoi">
+    <h2 id="pourquoi">Des jeux d’apéro gratuits, prêts en 10 secondes</h2>
+    <p>
+      Pas de cartes à imprimer, pas de boîte à oublier : les jeux tournent dans le navigateur, sur n’importe quel
+      téléphone. Il suffit d’entrer les prénoms, de choisir un pack et de jouer. Les parties durent de 5 à 20 minutes,
+      idéal pour lancer la soirée ou pour faire une pause entre deux plats.
+    </p>
+    <p>
+      Envie de fous rires ? <a href={href('/rigolol/')}>Rigolol</a> met tes amis au défi de ne pas rire. Plutôt
+      théâtre ? <a href={href('/mimos/')}>Mimos</a> est le jeu de mime qui fait bouger tout le monde. Besoin d’adrénaline ?
+      <a href={href('/takotac/')}>Takotac</a> te laisse 7 secondes pour citer 3 trucs.
+    </p>
+  </section>
+
+  <Faq items={faq} />
+</BaseLayout>
+
+<style>
+  .home-hero {
+    padding-block: var(--sp-7) var(--sp-5);
+    text-align: left;
+  }
+  .home-hero h1 {
+    max-width: 18ch;
+  }
+  .home-hero__lead {
+    font-size: var(--fs-lg);
+    color: var(--text-muted);
+    max-width: 38rem;
+    margin-bottom: var(--sp-5);
+  }
+  .mode {
+    padding: var(--sp-5);
+  }
+  .mode p {
+    margin: 0;
+  }
+  .soon {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: var(--sp-2);
+    padding: 0.1rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+</style>

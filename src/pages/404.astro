@@ -1,0 +1,24 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import GameCard from '~/components/GameCard.astro';
+import { GAME_LIST } from '~/games/meta';
+---
+
+<BaseLayout title="Page introuvable | Jeux de soirée" description="Cette page n’existe pas." path="/404/" noindex>
+  <section class="container notfound">
+    <p class="eyebrow">Erreur 404</p>
+    <h1>Oups, cette page s’est cachée</h1>
+    <p class="muted">Elle a peut-être été déplacée. Pas grave : choisis un jeu et on repart.</p>
+  </section>
+  <section class="container">
+    <div class="grid grid--3">
+      {GAME_LIST.map((g, i) => <GameCard game={g} index={i} />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    padding-block: var(--sp-7) var(--sp-5);
+  }
+</style>

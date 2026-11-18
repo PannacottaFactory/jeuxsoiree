@@ -1,0 +1,52 @@
+---
+/**
+ * Mentions légales minimales (LCEN, art. 6). À compléter en phase 5 avec la politique de confidentialité,
+ * les cookies et la régie publicitaire.
+ */
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { SITE } from '~/games/meta';
+---
+
+<BaseLayout
+  title="Mentions légales | Jeux de soirée"
+  description="Mentions légales du site Jeux de soirée : éditeur, hébergeur et propriété intellectuelle."
+  path="/mentions-legales/"
+>
+  <article class="container prose legal">
+    <h1>Mentions légales</h1>
+
+    <h2>Éditeur du site</h2>
+    <p>
+      Le site « {SITE.name} » est édité par <strong>{SITE.publisher}</strong>.
+      <!-- TODO(phase 5) : forme juridique, adresse, e-mail de contact et directeur de la publication. -->
+    </p>
+
+    <h2>Hébergement</h2>
+    <p>
+      Le site est hébergé par GitHub, Inc. (service GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107,
+      États-Unis.
+    </p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>
+      Les jeux Rigolol, Mimos et Takotac, leurs contenus, leurs noms et leurs visuels sont la propriété de
+      {SITE.publisher}. Toute reproduction sans autorisation est interdite.
+    </p>
+
+    <h2>Données personnelles</h2>
+    <p>
+      Les prénoms saisis pour jouer restent sur ton appareil. Le site ne dépose aujourd’hui aucun cookie publicitaire ni
+      de mesure d’audience.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal {
+    padding-block: var(--sp-6);
+  }
+  .legal h2 {
+    font-size: var(--fs-xl);
+    margin-top: var(--sp-6);
+  }
+</style>

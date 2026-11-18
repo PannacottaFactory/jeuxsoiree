@@ -1,0 +1,48 @@
+---
+/**
+ * Balises SEO d'une page : title, description, canonical, robots, Open Graph, Twitter Card et JSON-LD.
+ */
+import { SITE } from '~/games/meta';
+import { absoluteUrl } from '~/lib/url';
+import { serializeLd, type JsonLd } from '~/lib/jsonld';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Chemin de la page (ex. '/mimos/'), sert à la canonical et à og:url. */
+  path: string;
+  /** Image OG relative au site (ex. '/og/mimos.png'). */
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  jsonLd?: JsonLd[];
+}
+
+const { title, description, path, image = '/og/accueil.png', imageAlt = SITE.name, noindex = false, jsonLd = [] } = Astro.props;
+const canonical = absoluteUrl(path, Astro.site);
+const imageUrl = absoluteUrl(image, Astro.site);
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+{jsonLd.length > 0 && <script type="application/ld+json" is:inline set:html={serializeLd(jsonLd.length === 1 ? jsonLd[0]! : jsonLd)} />}

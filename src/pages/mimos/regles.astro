@@ -1,0 +1,70 @@
+---
+import RulesLayout from '~/layouts/RulesLayout.astro';
+---
+
+<RulesLayout slug="mimos">
+  <p>
+    Mimos est un jeu de mime pour 2 à 8 joueurs. À son tour, le <strong>mimeur</strong> a 60 secondes pour faire deviner
+    jusqu’à 5 expressions, sans parler.
+  </p>
+
+  <h2>Choisir un mode</h2>
+  <table>
+    <thead>
+      <tr><th scope="col">Mode</th><th scope="col">Joueurs</th><th scope="col">Qui marque ?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Chacun pour soi</td><td>2 à 6</td><td>Le mimeur : +1 par expression trouvée</td></tr>
+      <tr><td>Équipes</td><td>2 équipes de même taille, de 2 à 4 joueurs chacune</td><td>L’équipe du mimeur : +1 par expression trouvée</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Les expressions</h2>
+  <p>
+    Chaque expression associe un <strong>sujet</strong> et une <strong>action</strong>, tirés au hasard : par exemple
+    « Un boulanger » + « qui fait du trampoline ». Cochez au moins un pack :
+  </p>
+  <ul>
+    <li><strong>Tout doux</strong> : sujets et actions du quotidien.</li>
+    <li>
+      <strong>Célébrités</strong> : uniquement des sujets (personnages réels et fictifs), combinés avec les actions des
+      autres packs cochés. Si c’est le seul pack coché, les actions viennent du pack Tout doux.
+    </li>
+    <li><strong>No Limit</strong> : sujets et actions osés, réservé aux adultes.</li>
+  </ul>
+
+  <h2>Déroulé d’un passage</h2>
+  <ol>
+    <li>Le jeu annonce le mimeur, qui prend le téléphone sans montrer l’écran.</li>
+    <li>Il appuie sur <strong>Prêt</strong> : la première expression s’affiche et le <strong>chrono de 60 secondes</strong> démarre.</li>
+    <li>Il mime. Dès que quelqu’un trouve, il appuie sur <strong>Trouvé</strong> (+1 point) et passe à l’expression suivante.</li>
+    <li>
+      Il peut appuyer sur <strong>Passer</strong>, mais l’expression est perdue : elle ne rapporte rien et compte dans les 5
+      expressions du passage.
+    </li>
+    <li>Le passage s’arrête après <strong>5 expressions</strong> ou quand le chrono atteint zéro.</li>
+  </ol>
+
+  <h2>Ordre de jeu et fin de partie</h2>
+  <p>
+    En chacun pour soi, les joueurs miment à tour de rôle. En équipes, on alterne : un joueur de l’équipe 1, puis un joueur
+    de l’équipe 2, et ainsi de suite. Le nombre de passages par joueur dépend du nombre de joueurs :
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Joueurs</th><th scope="col">Passages par joueur</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2 ou 3</td><td>4</td></tr>
+      <tr><td>4</td><td>3</td></tr>
+      <tr><td>5 à 8</td><td>2</td></tr>
+    </tbody>
+  </table>
+  <p>À la fin, le classement des joueurs (ou le score des deux équipes) s’affiche.</p>
+
+  <h2>Bon à savoir</h2>
+  <ul>
+    <li>Une même expression ne revient jamais dans une partie.</li>
+    <li>Mimer, c’est sans parler : mettez-vous d’accord à l’avance sur les bruitages autorisés.</li>
+  </ul>
+</RulesLayout>

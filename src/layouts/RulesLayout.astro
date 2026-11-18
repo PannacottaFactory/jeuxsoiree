@@ -1,0 +1,87 @@
+---
+/**
+ * Gabarit des pages « Règles » : fil d'Ariane, article en largeur de lecture, appel à jouer en fin de page.
+ */
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import Button from '~/components/Button.astro';
+import { FEATURES, GAMES, type GameSlug } from '~/games/meta';
+import { href } from '~/lib/url';
+import { breadcrumbLd } from '~/lib/jsonld';
+
+interface Props {
+  slug: GameSlug;
+}
+const { slug } = Astro.props;
+const game = GAMES[slug];
+const path = `/${slug}/regles/`;
+const crumbs = [
+  { name: 'Accueil', href: href('/') },
+  { name: game.name, href: href(`/${slug}/`) },
+  { name: 'Règles', href: href(path) },
+];
+---
+
+<BaseLayout
+  title={game.seo.rulesTitle}
+  description={game.seo.rulesDescription}
+  path={path}
+  game={slug}
+  image={`/og/${slug}.png`}
+  imageAlt={`Règles de ${game.name}`}
+  jsonLd={[breadcrumbLd(crumbs.map((c) => ({ name: c.name, url: new URL(c.href, Astro.site).toString() })))]}
+>
+  <Breadcrumbs items={crumbs} />
+  <article class="container rules">
+    <header class="rules__header">
+      <p class="eyebrow">{game.tagline}</p>
+      <h1>Règles de <span class="gradient-text">{game.name}</span></h1>
+      <p class="rules__facts muted">{game.players.label} · {game.duration} · gratuit</p>
+    </header>
+    <div class="prose rules__body">
+      <slot />
+    </div>
+    <div class="rules__cta glass">
+      <p><strong>Prêts à jouer ?</strong> Un téléphone, des amis, c’est tout ce qu’il faut.</p>
+      <Button href={href(`/${slug}/jouer/`)} size="lg">{FEATURES.play ? `Jouer à ${game.name}` : 'Jouer (bientôt)'}</Button>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .rules__header {
+    padding-block: var(--sp-5) var(--sp-4);
+  }
+  .rules__body :global(h2) {
+    font-size: var(--fs-xl);
+    margin-top: var(--sp-6);
+  }
+  .rules__body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--sp-3) 0 var(--sp-5);
+    font-size: var(--fs-sm);
+  }
+  .rules__body :global(th),
+  .rules__body :global(td) {
+    text-align: left;
+    padding: var(--sp-2) var(--sp-3);
+    border-bottom: 1px solid var(--border);
+  }
+  .rules__body :global(th) {
+    color: var(--accent);
+    font-family: var(--font-display);
+  }
+  .rules__cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+    align-items: flex-start;
+    margin-top: var(--sp-7);
+    padding: var(--sp-5);
+    max-width: var(--prose-max);
+  }
+  .rules__cta p {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,66 @@
+---
+/** Liste d'étapes numérotées (« Comment jouer »). */
+interface Props {
+  steps: { title: string; text: string }[];
+}
+const { steps } = Astro.props;
+---
+
+<ol class="steps">
+  {
+    steps.map((s, i) => (
+      <li class="steps__item glass rise" style={`--i: ${i}`}>
+        <span class="steps__num" aria-hidden="true">
+          {i + 1}
+        </span>
+        <div>
+          <h3 class="steps__title">{s.title}</h3>
+          <p class="steps__text muted">{s.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .steps {
+    display: grid;
+    gap: var(--sp-3);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: none;
+  }
+  @media (min-width: 48rem) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .steps__item {
+    display: flex;
+    gap: var(--sp-4);
+    align-items: flex-start;
+    padding: var(--sp-4) var(--sp-5);
+    border-radius: var(--radius-md);
+  }
+  .steps__num {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    color: var(--on-accent);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.15rem;
+  }
+  .steps__title {
+    margin: 0.35rem 0 var(--sp-1);
+    font-size: var(--fs-md);
+  }
+  .steps__text {
+    margin: 0;
+  }
+</style>
